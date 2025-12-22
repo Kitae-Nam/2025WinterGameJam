@@ -58,6 +58,8 @@ public class BuildBridge : MonoBehaviour
 
     private void Awake()
     {
+        activeNodeId = -1;
+
         foreach (var n in FindObjectsByType<NodeView>(FindObjectsSortMode.None))
         {
             if (n == null) continue;
@@ -142,27 +144,83 @@ public class BuildBridge : MonoBehaviour
             return;
         }
 
-        if (buildZone != null && !buildZone.OverlapPoint(mousePos))
+        #region New Instantiate
+        NodeView targetNode = null;
+        Collider2D hitNode = Physics2D.OverlapPoint(mousePos, nodeLayer);
+        if (hitNode != null)
         {
-            return;
+            NodeView clickedNode = hitNode.GetComponent<NodeView>();
+            if (clickedNode != null && clickedNode.Id != fromNode.Id)
+                targetNode = clickedNode;
         }
 
-        float dist = Vector2.Distance(fromNode.transform.position, mousePos);
+        Vector2 targetPos = targetNode != null ? (Vector2)targetNode.transform.position : mousePos;
+
+        if (buildZone != null && !buildZone.OverlapPoint(targetPos))
+            return;
+
+        float dist = Vector2.Distance(fromNode.transform.position, targetPos);
         if (dist < minLineLength || dist > maxLineLength)
             return;
 
-        Vector2 newDir = (mousePos - (Vector2)fromNode.transform.position).normalized;
+        Vector2 newDir = (targetPos - (Vector2)fromNode.transform.position).normalized;
         Vector2 baseDir = angleDir.TryGetValue(fromNode.Id, out var prevDir) ? prevDir : Vector2.right;
 
-        if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle) return;
+        if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle)
+            return;
 
         float cost = dist * costPerUnit;
         if (spent + cost > total)
-        {
             return;
+
+        bool createdNew = false;
+        int targetId;
+        if (targetNode == null)
+        {
+            int newId;
+            do { newId = UnityEngine.Random.Range(0, 2000000000); }
+            while (nodeDictionary.ContainsKey(newId));
+
+            targetNode = Instantiate(nodePrefab, targetPos, Quaternion.identity);
+            targetNode.Init(newId);
+            nodeDictionary[newId] = targetNode;
+
+            targetId = newId;
+            createdNew = true;
+        }
+        else
+        {
+            if (!nodeDictionary.ContainsKey(targetNode.Id))
+                nodeDictionary[targetNode.Id] = targetNode;
+
+            targetId = targetNode.Id;
         }
 
+        EdgeView edge = Instantiate(edgePrefab);
+        edge.Init(fromNode.Id, targetId, fromNode.transform.position, targetNode.transform.position, cost);
+        edgeList.Add(edge);
 
+        if (createdNew)
+        {
+            if (!childrenMap.TryGetValue(fromNode.Id, out var childList))
+            {
+                childList = new List<int>();
+                childrenMap[fromNode.Id] = childList;
+            }
+            childList.Add(targetId);
+            edgeByChild[targetId] = edge;
+        }
+
+        angleDir[targetId] = ((Vector2)targetNode.transform.position - (Vector2)fromNode.transform.position).normalized;
+
+        spent += cost;
+        OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
+
+        ActiveNodeId = targetId;
+        #endregion
+
+        #region Old Instantiate
+        /*
         int newId;
         do { newId = UnityEngine.Random.Range(0, 2000000000); }
         while (nodeDictionary.ContainsKey(newId));
@@ -188,6 +246,8 @@ public class BuildBridge : MonoBehaviour
         OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
 
         ActiveNodeId = newId;
+        */
+        #endregion
     }
 
     void UpdatePreview(Vector2 mousePos)
@@ -200,19 +260,29 @@ public class BuildBridge : MonoBehaviour
             return;
         }
 
+        Vector2 targetPos = mousePos;
+        Collider2D hitNode = Physics2D.OverlapPoint(mousePos, nodeLayer);
+        if (hitNode != null)
+        {
+            NodeView hovered = hitNode.GetComponent<NodeView>();
+            if (hovered != null && hovered.Id != fromNode.Id)
+                targetPos = hovered.transform.position;
+        }
+
         bool valid = true;
 
-        if (buildZone != null && !buildZone.OverlapPoint(mousePos))
+        if (buildZone != null && !buildZone.OverlapPoint(targetPos))
             valid = false;
 
-        float dist = Vector2.Distance(fromNode.transform.position, mousePos);
+        float dist = Vector2.Distance(fromNode.transform.position, targetPos);
         if (dist < minLineLength || dist > maxLineLength)
             valid = false;
 
-        Vector2 newDir = (mousePos - (Vector2)fromNode.transform.position).normalized;
+        Vector2 newDir = (targetPos - (Vector2)fromNode.transform.position).normalized;
         Vector2 baseDir = angleDir.TryGetValue(fromNode.Id, out var prevDir) ? prevDir : Vector2.right;
 
-        if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle) valid = false;
+        if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle)
+            valid = false;
 
         float cost = dist * costPerUnit;
         if (spent + cost > total)
@@ -226,7 +296,7 @@ public class BuildBridge : MonoBehaviour
 
         previewLine.enabled = true;
         previewLine.SetPosition(0, fromNode.transform.position);
-        previewLine.SetPosition(1, mousePos);
+        previewLine.SetPosition(1, targetPos);
     }
 
     float DeleteNode(int nodeId)
@@ -240,6 +310,27 @@ public class BuildBridge : MonoBehaviour
                 refund += DeleteNode(childId);
         }
 
+        for (int i = edgeList.Count - 1; i >= 0; i--)
+        {
+            EdgeView e = edgeList[i];
+            if (e == null) { edgeList.RemoveAt(i); continue; }
+
+            if (e.ParentId == nodeId || e.ChildId == nodeId)
+            {
+                refund += e.Cost;
+                if (childrenMap.TryGetValue(e.ParentId, out var list))
+                    list.Remove(e.ChildId);
+
+                if (edgeByChild.TryGetValue(e.ChildId, out var stored) && stored == e)
+                    edgeByChild.Remove(e.ChildId);
+
+                Destroy(e.gameObject);
+                edgeList.RemoveAt(i);
+            }
+        }
+
+        // 이런 버그가 멈추지 않잖아?
+        /*
         if (edgeByChild.TryGetValue(nodeId, out var incomingEdge) && incomingEdge != null)
         {
             refund += incomingEdge.Cost;
@@ -252,6 +343,7 @@ public class BuildBridge : MonoBehaviour
             edgeList.Remove(incomingEdge);
             Destroy(incomingEdge.gameObject);
         }
+        */
 
         if (nodeDictionary.TryGetValue(nodeId, out var node) && node != null)
         {

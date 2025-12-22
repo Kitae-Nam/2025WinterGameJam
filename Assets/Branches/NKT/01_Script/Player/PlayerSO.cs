@@ -18,6 +18,7 @@ public class PlayerSO : ScriptableObject
     public float maxRotationSpeed = 200f;
 
     public float jumpForce = 7f;
+    public float gravityForce = 20f;
 
     public float GetMoveSpeed()
     {

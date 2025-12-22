@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 28
-  productGUID: 00000000000000000000000000000000
+  productGUID: 2d364569b765b12498035af99ca0cc22
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -971,7 +971,7 @@ PlayerSettings:
   cloudProjectId: d698567d-2331-4f5c-9893-ddd24dfdf8f8
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
+  projectName: 2025Winter
   organizationId: gnam9905
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0

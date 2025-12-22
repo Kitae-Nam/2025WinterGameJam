@@ -14,15 +14,14 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         _rigid = GetComponent<Rigidbody2D>();
-        //_rigid.freezeRotation = true;
     }
     private void FixedUpdate()
     {
-        MoveHandle();
         _rigid.linearVelocity = new Vector2(_playerSo.GetMoveSpeed(), _rigid.linearVelocityY);
     }
     private void Update()
     {
+        MoveHandle();
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -50,6 +49,12 @@ public class PlayerMovement : MonoBehaviour
         {
             SpeedUp();
         }
+
+        if(Input.GetKeyDown(KeyCode.Space) && _isOnGround)
+        {
+            _rigid.AddForce(Vector2.up * _playerSo.jumpForce, ForceMode2D.Impulse);
+            _isOnGround = false;
+        }
     }
 
     private void SpeedUp()
@@ -67,25 +72,19 @@ public class PlayerMovement : MonoBehaviour
     private void Spin()
     {
         float dir = 0f;
-        float targetVelocity = 0f;
 
         if (Input.GetKey(KeyCode.D))
             dir = -1f;
         else if (Input.GetKey(KeyCode.A))
             dir = 1f;
 
-        targetVelocity = dir * _playerSo.maxRotationSpeed;
+        float targetVelocity = dir * _playerSo.maxRotationSpeed;
 
-        if (dir != 0f)//입력이 있을때 점점 빨리 회전
-        {
-            _velocity += dir * _playerSo.rotationAcceleration;
-        }
-        else//점점 느려짐
-        {
-            _velocity = Mathf.MoveTowards(_velocity, targetVelocity, _playerSo.rotationDeceleration);
-        }
-
-        _velocity = Mathf.Clamp(_velocity, -_playerSo.maxRotationSpeed, _playerSo.maxRotationSpeed);
+        _velocity = Mathf.MoveTowards(
+            _velocity,
+            targetVelocity,
+            _playerSo.rotationAcceleration * Time.fixedDeltaTime
+        );
 
         _rigid.angularVelocity = _velocity;
         _totalRotation += _velocity * Time.fixedDeltaTime;
@@ -103,7 +102,7 @@ public class PlayerMovement : MonoBehaviour
         {
             Debug.Log("Landing Perfect Success!");
         }
-        else if (absAngle <= 45f)
+        else if (absAngle <= 35f)
         {
             Debug.Log("Landing Success!");
         }

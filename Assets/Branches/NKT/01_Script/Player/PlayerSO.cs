@@ -17,6 +17,8 @@ public class PlayerSO : ScriptableObject
     public float rotationDeceleration = 100f;
     public float maxRotationSpeed = 200f;
 
+    public float jumpForce = 7f;
+
     public float GetMoveSpeed()
     {
         return moveSpeed;

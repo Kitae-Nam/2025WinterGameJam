@@ -29,7 +29,6 @@ public class BuildBridge : MonoBehaviour
 
     [Header("Angle")]
     [SerializeField, Range(0f, 180f)] float maxAngle = 60f;
-    [SerializeField] bool useAbsoluteAngle = true;
 
     [Header("Budget")]
     [SerializeField] float total = 200.0f;

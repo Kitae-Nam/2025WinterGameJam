@@ -29,7 +29,6 @@ public class PlayerMove : MonoBehaviour
 
         //StickToGround();
 
-        _rigid.linearVelocity = new Vector2(_playerSo.GetMoveSpeed(), _rigid.linearVelocity.y);
     }
     private void Update()
     {

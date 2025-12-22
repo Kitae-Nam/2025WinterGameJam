@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEditor.PlayerSettings;
 
-public class BuildBridge : MonoBehaviour
+public class BuildBridge : MonoSingleton<BuildBridge>
 {
     [Header("Node State")]
     [SerializeField] int activeNodeId = -1;
@@ -28,12 +28,13 @@ public class BuildBridge : MonoBehaviour
     [SerializeField] LayerMask edgeLayer;
 
     [Header("Angle")]
+    [SerializeField] bool isLimitAngle = false;
     [SerializeField, Range(0f, 180f)] float maxAngle = 60f;
-    [SerializeField] bool useAbsoluteAngle = true;
 
     [Header("Budget")]
     [SerializeField] float total = 200.0f;
     [SerializeField] float spent = 0.0f;
+    [SerializeField] TextMeshProUGUI moneyText;
     public string RemainingBudget => (total - spent).ToString("F2");
     public event Action<float, float> OnBudgetChanged;
 
@@ -48,17 +49,31 @@ public class BuildBridge : MonoBehaviour
     [SerializeField] LineRenderer previewLine;
     [SerializeField] bool disablePreviewWhenInvalid = true;
 
+    [Header("Simulating")]
+    [SerializeField] float nodeMass = 1f;
+    [SerializeField] float gravityScale = 1f;
+    [SerializeField] float jointBreakForce = 250f; // 인장 강도, 이거 이상 늘어나면 박살남 (아마? 맞나?)
+    [SerializeField] bool isSimulating = false;
+
     [Header("Group")]
     readonly Dictionary<int, NodeView> nodeDictionary = new();
     readonly List<EdgeView> edgeList = new();
     readonly Dictionary<int, Vector2> angleDir = new();
 
+    // 상속
     readonly Dictionary<int, List<int>> childrenMap = new();
     readonly Dictionary<int, EdgeView> edgeByChild = new();
 
-    private void Awake()
+    // 복구 위치
+    readonly Dictionary<int, Vector2> savedPos = new();
+    readonly Dictionary<int, float> savedRot = new();
+
+    protected override void Awake()
     {
+        base.Awake();
+
         activeNodeId = -1;
+        moneyText.text = RemainingBudget;
 
         foreach (var n in FindObjectsByType<NodeView>(FindObjectsSortMode.None))
         {
@@ -78,6 +93,16 @@ public class BuildBridge : MonoBehaviour
 
     private void Update()
     {
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            if (!isSimulating) StartSimulation();
+            else StopSimulation();
+            return;
+        }
+
+        if (isSimulating) return;
+
+
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
             Collider2D nodeHit = Physics2D.OverlapPoint(GetMousePos(), nodeLayer);
@@ -88,6 +113,7 @@ public class BuildBridge : MonoBehaviour
                 {
                     float refund = DeleteNode(node.Id);
                     spent = Mathf.Max(0f, spent - refund);
+                    moneyText.text = RemainingBudget;
                     OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
                     ActiveNodeId = -1;
                     return;
@@ -101,8 +127,29 @@ public class BuildBridge : MonoBehaviour
                 EdgeView edge = edgeHit.GetComponent<EdgeView>();
                 if (edge != null)
                 {
-                    float refund = DeleteNode(edge.ChildId);
-                    spent = Mathf.Max(0f, spent - refund);
+                    bool isTreeEdge = edgeByChild.TryGetValue(edge.ChildId, out var stored) && stored == edge;
+                    bool childIsProtected = nodeDictionary.TryGetValue(edge.ChildId, out var childNode) && childNode != null && childNode.IsProtected;
+
+                    if (isTreeEdge && !childIsProtected)
+                    {
+                        float refund = DeleteNode(edge.ChildId);
+                        spent = Mathf.Max(0f, spent - refund);
+                    }
+                    else
+                    {
+                        float refund = edge.Cost;
+                        spent = Mathf.Max(0f, spent - refund);
+
+                        if (childrenMap.TryGetValue(edge.ParentId, out var list))
+                            list.Remove(edge.ChildId);
+                        if (edgeByChild.TryGetValue(edge.ChildId, out var stored2) && stored2 == edge)
+                            edgeByChild.Remove(edge.ChildId);
+
+                        edgeList.Remove(edge);
+                        Destroy(edge.gameObject);
+                    }
+
+                    moneyText.text = RemainingBudget;
                     OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
                     ActiveNodeId = -1;
                     return;
@@ -110,6 +157,7 @@ public class BuildBridge : MonoBehaviour
             }
 
             ActiveNodeId = -1;
+            moneyText.text = RemainingBudget;
         }
 
         UpdatePreview(GetMousePos());
@@ -163,11 +211,14 @@ public class BuildBridge : MonoBehaviour
         if (dist < minLineLength || dist > maxLineLength)
             return;
 
-        Vector2 newDir = (targetPos - (Vector2)fromNode.transform.position).normalized;
-        Vector2 baseDir = angleDir.TryGetValue(fromNode.Id, out var prevDir) ? prevDir : Vector2.right;
+        if (isLimitAngle)
+        {
+            Vector2 newDir = (targetPos - (Vector2)fromNode.transform.position).normalized;
+            Vector2 baseDir = angleDir.TryGetValue(fromNode.Id, out var prevDir) ? prevDir : Vector2.right;
 
-        if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle)
-            return;
+            if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle)
+                return;
+        }
 
         float cost = dist * costPerUnit;
         if (spent + cost > total)
@@ -197,7 +248,7 @@ public class BuildBridge : MonoBehaviour
         }
 
         EdgeView edge = Instantiate(edgePrefab);
-        edge.Init(fromNode.Id, targetId, fromNode.transform.position, targetNode.transform.position, cost);
+        edge.Init(fromNode.Id, targetId, fromNode.transform, targetNode.transform, cost);
         edgeList.Add(edge);
 
         if (createdNew)
@@ -214,6 +265,7 @@ public class BuildBridge : MonoBehaviour
         angleDir[targetId] = ((Vector2)targetNode.transform.position - (Vector2)fromNode.transform.position).normalized;
 
         spent += cost;
+        moneyText.text = RemainingBudget;
         OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
 
         ActiveNodeId = targetId;
@@ -278,11 +330,14 @@ public class BuildBridge : MonoBehaviour
         if (dist < minLineLength || dist > maxLineLength)
             valid = false;
 
-        Vector2 newDir = (targetPos - (Vector2)fromNode.transform.position).normalized;
-        Vector2 baseDir = angleDir.TryGetValue(fromNode.Id, out var prevDir) ? prevDir : Vector2.right;
+        if (isLimitAngle)
+        {
+            Vector2 newDir = (targetPos - (Vector2)fromNode.transform.position).normalized;
+            Vector2 baseDir = angleDir.TryGetValue(fromNode.Id, out var prevDir) ? prevDir : Vector2.right;
 
-        if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle)
-            valid = false;
+            if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle)
+                valid = false;
+        }
 
         float cost = dist * costPerUnit;
         if (spent + cost > total)
@@ -361,5 +416,140 @@ public class BuildBridge : MonoBehaviour
     {
         Vector3 p = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         return new Vector2(p.x, p.y);
+    }
+
+    // 내가 썼지만 이게 왜 작동하는지는 모르겠다(사실 알지도 모른다, 엄청난 버그 픽스!!)
+    // 근데 일단 되잖아 한잔해~
+    public void StartSimulation()
+    {
+        savedPos.Clear();
+        savedRot.Clear();
+
+        foreach (var kv in nodeDictionary)
+        {
+            if (kv.Value == null) continue;
+            savedPos[kv.Key] = kv.Value.transform.position;
+            savedRot[kv.Key] = kv.Value.transform.eulerAngles.z;
+        }
+
+        isSimulating = true;
+        ActiveNodeId = -1;
+
+        var adj = new Dictionary<int, List<int>>();
+        void AddAdj(int a, int b)
+        {
+            if (!adj.TryGetValue(a, out var list)) { list = new List<int>(); adj[a] = list; }
+            list.Add(b);
+        }
+
+        foreach (var e in edgeList)
+        {
+            if (e == null) continue;
+            AddAdj(e.ParentId, e.ChildId);
+            AddAdj(e.ChildId, e.ParentId);
+        }
+
+        var supported = new HashSet<int>();
+        var q = new Queue<int>();
+
+        foreach (var kv in nodeDictionary)
+        {
+            if (kv.Value != null && kv.Value.IsProtected)
+            {
+                supported.Add(kv.Key);
+                q.Enqueue(kv.Key);
+            }
+        }
+
+        while (q.Count > 0)
+        {
+            int cur = q.Dequeue();
+            if (!adj.TryGetValue(cur, out var list)) continue;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                int nxt = list[i];
+                if (supported.Add(nxt)) q.Enqueue(nxt);
+            }
+        }
+
+        foreach (var kv in nodeDictionary)
+        {
+            var node = kv.Value;
+            if (node == null) continue;
+
+            foreach (var j in node.GetComponents<Joint2D>()) Destroy(j);
+
+            var rb = node.GetComponent<Rigidbody2D>();
+            if (!rb) rb = node.gameObject.AddComponent<Rigidbody2D>();
+
+            rb.mass = nodeMass;
+            rb.gravityScale = gravityScale;
+
+            if (node.IsProtected)
+                rb.bodyType = RigidbodyType2D.Static;
+            else
+                rb.bodyType = RigidbodyType2D.Dynamic;
+        }
+
+        foreach (var e in edgeList)
+        {
+            if (e == null) continue;
+            bool aSup = supported.Contains(e.ParentId);
+            bool bSup = supported.Contains(e.ChildId);
+            if (!aSup && !bSup) continue;
+
+            if (!nodeDictionary.TryGetValue(e.ParentId, out var a) || a == null) continue;
+            if (!nodeDictionary.TryGetValue(e.ChildId, out var b) || b == null) continue;
+
+            var rbA = a.GetComponent<Rigidbody2D>();
+            var rbB = b.GetComponent<Rigidbody2D>();
+            if (!rbA || !rbB) continue;
+
+            var joint = b.gameObject.AddComponent<DistanceJoint2D>();
+            joint.connectedBody = rbA;
+            joint.autoConfigureDistance = false;
+            joint.distance = Vector2.Distance(a.transform.position, b.transform.position);
+            joint.enableCollision = false;
+            joint.breakForce = jointBreakForce;
+            joint.breakTorque = jointBreakForce;
+            e.BindSimJoint(joint);
+        }
+
+        if (previewLine) previewLine.enabled = false;
+    }
+
+    public void StopSimulation()
+    {
+        isSimulating = false;
+        ActiveNodeId = -1;
+
+        foreach (var kv in nodeDictionary)
+        {
+            var node = kv.Value;
+            if (node == null) continue;
+
+            foreach (var j in node.GetComponents<Joint2D>())
+                Destroy(j);
+
+            var rb = node.GetComponent<Rigidbody2D>();
+            if (rb != null)
+                Destroy(rb);
+
+            if (savedPos.TryGetValue(kv.Key, out var p))
+                node.transform.position = p;
+
+            if (savedRot.TryGetValue(kv.Key, out var rz))
+                node.transform.rotation = Quaternion.Euler(0f, 0f, rz);
+        }
+
+        for (int i = edgeList.Count - 1; i >= 0; i--)
+        {
+            var e = edgeList[i];
+            if (e == null) { edgeList.RemoveAt(i); continue; }
+            e.ResetSim();
+        }
+
+        if (previewLine) previewLine.enabled = true;
     }
 }

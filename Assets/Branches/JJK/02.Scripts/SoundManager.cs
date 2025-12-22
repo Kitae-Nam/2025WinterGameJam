@@ -10,8 +10,13 @@ public class SoundManager : MonoSingleton<SoundManager>
 
     private Dictionary<Sound, AudioClip> soundClipDictionary = new();
 
-    private float sfxVolume = 1f;
-    private float bgmVolume = 1f;
+    private float _sfxVolume = 1f;
+    private float _bgmVolume = 1f;
+    
+    private bool _isBgmMuted;
+    private bool _isSfxMuted;
+    private float _prevBgmVolume = 1f;
+    private float _prevSfxVolume = 1f;
 
     protected override void Awake()
     {
@@ -33,20 +38,73 @@ public class SoundManager : MonoSingleton<SoundManager>
     
     public void SetBgmVolume(float value)
     {
-        bgmVolume = value;
-        SetMixerVolume("BGM_Volume", bgmVolume);
-        PlayerPrefs.SetFloat("BGM_Volume", bgmVolume);
+        _bgmVolume = value;
+        
+        if (_isBgmMuted)
+        {
+            _isBgmMuted = false;
+            PlayerPrefs.SetInt("BGM_MUTE", 0);
+        }
+        
+        SetMixerVolume("BGM_Volume", _bgmVolume);
+        PlayerPrefs.SetFloat("BGM_Volume", _bgmVolume);
     }
 
     public void SetSfxVolume(float value)
     {
-        sfxVolume = value;
-        SetMixerVolume("SFX_Volume", sfxVolume);
-        PlayerPrefs.SetFloat("SFX_Volume", sfxVolume);
+        _sfxVolume = value;
+        
+        if (_isSfxMuted)
+        {
+            _isSfxMuted = false;
+            PlayerPrefs.SetInt("SFX_MUTE", 0);
+        }
+        
+        SetMixerVolume("SFX_Volume", _sfxVolume);
+        PlayerPrefs.SetFloat("SFX_Volume", _sfxVolume);
     }
     
-    public float GetBgmVolume() => bgmVolume;
-    public float GetSfxVolume() => sfxVolume;
+    public float GetBgmVolume() => _bgmVolume;
+    public float GetSfxVolume() => _sfxVolume;
+    
+    public void BgmMute()
+    {
+        _isBgmMuted = !_isBgmMuted;
+
+        if (_isBgmMuted)
+        {
+            _prevBgmVolume = _bgmVolume;
+            SetMixerVolume("BGM_Volume", 0f);
+        }
+        else
+        {
+            SetMixerVolume("BGM_Volume", _prevBgmVolume);
+        }
+
+        PlayerPrefs.SetInt("BGM_MUTE", _isBgmMuted ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+    
+    public void SfxMute()
+    {
+        _isSfxMuted = !_isSfxMuted;
+
+        if (_isSfxMuted)
+        {
+            _prevSfxVolume = _sfxVolume;
+            SetMixerVolume("SFX_Volume", 0f);
+        }
+        else
+        {
+            SetMixerVolume("SFX_Volume", _prevSfxVolume);
+        }
+
+        PlayerPrefs.SetInt("SFX_MUTE", _isSfxMuted ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+    
+    public bool IsBgmMuted() => _isBgmMuted;
+    public bool IsSfxMuted() => _isSfxMuted;
     
     private void SetMixerVolume(string param, float value)
     {
@@ -59,11 +117,14 @@ public class SoundManager : MonoSingleton<SoundManager>
 
     private void LoadVolume()
     {
-        float bgm = PlayerPrefs.GetFloat("BGM_Volume", 1f);
-        float sfx = PlayerPrefs.GetFloat("SFX_Volume", 1f);
+        _bgmVolume = PlayerPrefs.GetFloat("BGM_Volume", 1f);
+        _sfxVolume = PlayerPrefs.GetFloat("SFX_Volume", 1f);
         
-        SetMixerVolume("BGM_Volume", bgm);
-        SetMixerVolume("SFX_Volume", sfx);
+        SetMixerVolume("BGM_Volume", _bgmVolume);
+        SetMixerVolume("SFX_Volume", _sfxVolume);
+        
+        SetMixerVolume("BGM_Volume", _isBgmMuted ? 0f : _bgmVolume);
+        SetMixerVolume("SFX_Volume", _isSfxMuted ? 0f : _sfxVolume);
     }
 }
 

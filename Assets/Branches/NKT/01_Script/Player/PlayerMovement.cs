@@ -1,25 +1,28 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [SerializeField] private Transform _visual;
     [SerializeField] private PlayerSO _playerSo;
 
     private Rigidbody2D _rigid;
     [SerializeField] private bool _isOnGround;
 
+    private float _velocity;
+    private float _totalRotation;
 
     private void Awake()
     {
         _rigid = GetComponent<Rigidbody2D>();
+        //_rigid.freezeRotation = true;
     }
     private void FixedUpdate()
     {
+        MoveHandle();
         _rigid.linearVelocity = new Vector2(_playerSo.GetMoveSpeed(), _rigid.linearVelocityY);
     }
     private void Update()
     {
-        MoveHandle();
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -27,7 +30,6 @@ public class PlayerMovement : MonoBehaviour
         {
             Debug.Log($"Player Speed : {_playerSo.GetMoveSpeed()}");
             _isOnGround = true;
-            _rigid.angularVelocity = 0f;
             Landing();
         }
     }
@@ -64,27 +66,44 @@ public class PlayerMovement : MonoBehaviour
 
     private void Spin()
     {
+        float dir = 0f;
+        float targetVelocity = 0f;
+
         if (Input.GetKey(KeyCode.D))
-        {
-            _rigid.angularVelocity = -_playerSo.rotationAcceleration;
-        }
+            dir = -1f;
         else if (Input.GetKey(KeyCode.A))
+            dir = 1f;
+
+        targetVelocity = dir * _playerSo.maxRotationSpeed;
+
+        if (dir != 0f)//입력이 있을때 점점 빨리 회전
         {
-            _rigid.angularVelocity = _playerSo.rotationDeceleration;
+            _velocity += dir * _playerSo.rotationAcceleration;
         }
+        else//점점 느려짐
+        {
+            _velocity = Mathf.MoveTowards(_velocity, targetVelocity, _playerSo.rotationDeceleration);
+        }
+
+        _velocity = Mathf.Clamp(_velocity, -_playerSo.maxRotationSpeed, _playerSo.maxRotationSpeed);
+
+        _rigid.angularVelocity = _velocity;
+        _totalRotation += _velocity * Time.fixedDeltaTime;
     }
     private void Landing()
     {
-        int lap = Mathf.FloorToInt(Mathf.Abs(transform.eulerAngles.z) / 180);
-        Debug.Log(lap);
-        float remainder = transform.eulerAngles.z - (lap * 180);
-        Debug.Log(remainder);
+        float angle = transform.eulerAngles.z;
 
-        if (remainder < 30)
+        if (angle > 180f)
+            angle -= 360f;
+
+        float absAngle = Mathf.Abs(angle);
+
+        if (absAngle <= 20f)
         {
             Debug.Log("Landing Perfect Success!");
         }
-        else if (remainder > 330)
+        else if (absAngle <= 45f)
         {
             Debug.Log("Landing Success!");
         }
@@ -92,5 +111,13 @@ public class PlayerMovement : MonoBehaviour
         {
             Debug.Log("Landing Fail!");
         }
+
+        _velocity = 0f;
+        _totalRotation = 0f;
+        _rigid.angularVelocity = 0f;
+    }
+    private int GetSpinCount()
+    {
+        return Mathf.FloorToInt(Mathf.Abs(_totalRotation) / 360f);
     }
 }

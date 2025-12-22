@@ -15,6 +15,7 @@ public class PlayerSO : ScriptableObject
     public float rotationAcceleration = 150f;
     [Range(1f, 300f)]
     public float rotationDeceleration = 100f;
+    public float maxRotationSpeed = 200f;
 
     public float GetMoveSpeed()
     {

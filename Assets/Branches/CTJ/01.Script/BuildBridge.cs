@@ -243,7 +243,7 @@ public class BuildBridge : MonoBehaviour
         ActiveNodeId = targetId;
         #endregion
 
-        #region Old Instantiate (혹시 몰라서 보존)
+        #region Old Instantiate
         /*
         int newId;
         do { newId = UnityEngine.Random.Range(0, 2000000000); }

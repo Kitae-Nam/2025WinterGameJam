@@ -1,7 +1,7 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
+using Image = UnityEngine.UI.Image;
+using Slider = UnityEngine.UI.Slider;
 
 public class OptionUI : MonoBehaviour
 {
@@ -92,12 +92,12 @@ public class OptionUI : MonoBehaviour
         }
     }
 
-    public void Again()
+    public void OnClickAgain()
     {
         //다시 시작
     }
 
-    public void Home()
+    public void OnClickHome()
     {
         //메뉴 화면으로
     }

@@ -265,6 +265,8 @@ MonoBehaviour:
   edgeLayer:
     serializedVersion: 2
     m_Bits: 8192
+  maxAngle: 50
+  useAbsoluteAngle: 1
   total: 200
   spent: 0
   buildZone: {fileID: 0}

@@ -27,6 +27,10 @@ public class BuildBridge : MonoBehaviour
     [SerializeField] LayerMask nodeLayer;
     [SerializeField] LayerMask edgeLayer;
 
+    [Header("Angle")]
+    [SerializeField, Range(0f, 180f)] float maxAngle = 60f;
+    [SerializeField] bool useAbsoluteAngle = true;
+
     [Header("Budget")]
     [SerializeField] float total = 200.0f;
     [SerializeField] float spent = 0.0f;
@@ -47,6 +51,7 @@ public class BuildBridge : MonoBehaviour
     [Header("Group")]
     readonly Dictionary<int, NodeView> nodeDictionary = new();
     readonly List<EdgeView> edgeList = new();
+    readonly Dictionary<int, Vector2> angleDir = new();
 
     readonly Dictionary<int, List<int>> childrenMap = new();
     readonly Dictionary<int, EdgeView> edgeByChild = new();
@@ -146,6 +151,11 @@ public class BuildBridge : MonoBehaviour
         if (dist < minLineLength || dist > maxLineLength)
             return;
 
+        Vector2 newDir = (mousePos - (Vector2)fromNode.transform.position).normalized;
+        Vector2 baseDir = angleDir.TryGetValue(fromNode.Id, out var prevDir) ? prevDir : Vector2.right;
+
+        if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle) return;
+
         float cost = dist * costPerUnit;
         if (spent + cost > total)
         {
@@ -172,6 +182,7 @@ public class BuildBridge : MonoBehaviour
         }
         childList.Add(newId);
         edgeByChild[newId] = edge;
+        angleDir[newId] = ((Vector2)newNode.transform.position - (Vector2)fromNode.transform.position).normalized;
 
         spent += cost;
         OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
@@ -197,6 +208,11 @@ public class BuildBridge : MonoBehaviour
         float dist = Vector2.Distance(fromNode.transform.position, mousePos);
         if (dist < minLineLength || dist > maxLineLength)
             valid = false;
+
+        Vector2 newDir = (mousePos - (Vector2)fromNode.transform.position).normalized;
+        Vector2 baseDir = angleDir.TryGetValue(fromNode.Id, out var prevDir) ? prevDir : Vector2.right;
+
+        if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle) valid = false;
 
         float cost = dist * costPerUnit;
         if (spent + cost > total)
@@ -244,6 +260,7 @@ public class BuildBridge : MonoBehaviour
         }
 
         childrenMap.Remove(nodeId);
+        angleDir.Remove(nodeId);
 
         return refund;
     }

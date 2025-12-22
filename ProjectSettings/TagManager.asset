@@ -17,8 +17,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - Node
+  - Edge
   - 
   - 
   - 
@@ -46,6 +46,9 @@ TagManager:
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Bridge
+    uniqueID: 3940188125
     locked: 0
   - name: Characters
     uniqueID: 456875869

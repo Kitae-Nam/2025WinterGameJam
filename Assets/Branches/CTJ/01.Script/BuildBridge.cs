@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class BuildBridge : MonoBehaviour
+public class BuildBridge : MonoSingleton<BuildBridge>
 {
     [Header("Node State")]
     [SerializeField] int activeNodeId = -1;
@@ -33,6 +34,7 @@ public class BuildBridge : MonoBehaviour
     [Header("Budget")]
     [SerializeField] float total = 200.0f;
     [SerializeField] float spent = 0.0f;
+    [SerializeField] TextMeshProUGUI moneyText;
     public string RemainingBudget => (total - spent).ToString("F2");
     public event Action<float, float> OnBudgetChanged;
 
@@ -48,7 +50,6 @@ public class BuildBridge : MonoBehaviour
     [SerializeField] bool disablePreviewWhenInvalid = true;
 
     [Header("Simulating")]
-    [SerializeField] KeyCode simulateKey = KeyCode.Space;
     [SerializeField] float nodeMass = 1f;
     [SerializeField] float gravityScale = 1f;
     [SerializeField] float jointBreakForce = 250f; // 인장 강도, 이거 이상 늘어나면 박살남 (아마? 맞나?)
@@ -67,9 +68,12 @@ public class BuildBridge : MonoBehaviour
     readonly Dictionary<int, Vector2> savedPos = new();
     readonly Dictionary<int, float> savedRot = new();
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         activeNodeId = -1;
+        moneyText.text = RemainingBudget;
 
         foreach (var n in FindObjectsByType<NodeView>(FindObjectsSortMode.None))
         {
@@ -109,6 +113,7 @@ public class BuildBridge : MonoBehaviour
                 {
                     float refund = DeleteNode(node.Id);
                     spent = Mathf.Max(0f, spent - refund);
+                    moneyText.text = RemainingBudget;
                     OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
                     ActiveNodeId = -1;
                     return;
@@ -122,8 +127,29 @@ public class BuildBridge : MonoBehaviour
                 EdgeView edge = edgeHit.GetComponent<EdgeView>();
                 if (edge != null)
                 {
-                    float refund = DeleteNode(edge.ChildId);
-                    spent = Mathf.Max(0f, spent - refund);
+                    bool isTreeEdge = edgeByChild.TryGetValue(edge.ChildId, out var stored) && stored == edge;
+                    bool childIsProtected = nodeDictionary.TryGetValue(edge.ChildId, out var childNode) && childNode != null && childNode.IsProtected;
+
+                    if (isTreeEdge && !childIsProtected)
+                    {
+                        float refund = DeleteNode(edge.ChildId);
+                        spent = Mathf.Max(0f, spent - refund);
+                    }
+                    else
+                    {
+                        float refund = edge.Cost;
+                        spent = Mathf.Max(0f, spent - refund);
+
+                        if (childrenMap.TryGetValue(edge.ParentId, out var list))
+                            list.Remove(edge.ChildId);
+                        if (edgeByChild.TryGetValue(edge.ChildId, out var stored2) && stored2 == edge)
+                            edgeByChild.Remove(edge.ChildId);
+
+                        edgeList.Remove(edge);
+                        Destroy(edge.gameObject);
+                    }
+
+                    moneyText.text = RemainingBudget;
                     OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
                     ActiveNodeId = -1;
                     return;
@@ -131,6 +157,7 @@ public class BuildBridge : MonoBehaviour
             }
 
             ActiveNodeId = -1;
+            moneyText.text = RemainingBudget;
         }
 
         UpdatePreview(GetMousePos());
@@ -238,6 +265,7 @@ public class BuildBridge : MonoBehaviour
         angleDir[targetId] = ((Vector2)targetNode.transform.position - (Vector2)fromNode.transform.position).normalized;
 
         spent += cost;
+        moneyText.text = RemainingBudget;
         OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
 
         ActiveNodeId = targetId;
@@ -392,7 +420,7 @@ public class BuildBridge : MonoBehaviour
 
     // 내가 썼지만 이게 왜 작동하는지는 모르겠다(사실 알지도 모른다, 엄청난 버그 픽스!!)
     // 근데 일단 되잖아 한잔해~
-    void StartSimulation()
+    public void StartSimulation()
     {
         savedPos.Clear();
         savedRot.Clear();
@@ -491,7 +519,7 @@ public class BuildBridge : MonoBehaviour
         if (previewLine) previewLine.enabled = false;
     }
 
-    void StopSimulation()
+    public void StopSimulation()
     {
         isSimulating = false;
         ActiveNodeId = -1;

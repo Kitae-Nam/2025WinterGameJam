@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using Image = UnityEngine.UI.Image;
 using Slider = UnityEngine.UI.Slider;
 
@@ -28,6 +29,11 @@ public class OptionUI : MonoBehaviour
         
         bgmSlider.onValueChanged.AddListener(OnBgmSliderChanged);
         sfxSlider.onValueChanged.AddListener(OnSfxSliderChanged);
+    }
+    
+    public void OnClickNext()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
     
     private void OnBgmSliderChanged(float value)
@@ -94,11 +100,11 @@ public class OptionUI : MonoBehaviour
 
     public void OnClickAgain()
     {
-        //다시 시작
+        SceneManager.LoadScene(1);
     }
 
     public void OnClickHome()
     {
-        //메뉴 화면으로
+        SceneManager.LoadScene(0);
     }
 }

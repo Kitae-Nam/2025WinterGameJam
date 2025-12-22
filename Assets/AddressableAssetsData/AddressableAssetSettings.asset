@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 468a46d0ae32c3544b7d98094e6448a9, type: 3}
   m_Name: AddressableAssetSettings
   m_EditorClassIdentifier: 
-  m_DefaultGroup: 03f526f8a4fded649be3823c29aa86e8
+  m_DefaultGroup: 2f95236aee7b71b4b8e5b628aa6bd6ca
   m_currentHash:
     serializedVersion: 2
-    Hash: 1a4cc8d4d55508d67f8f9ff25c1005dd
+    Hash: e7cbaa9a46dffc7deeab3bf6436053af
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_CatalogRequestsTimeout: 0
@@ -54,62 +54,77 @@ MonoBehaviour:
     m_Id: 
   m_RemoteCatalogLoadPath:
     m_Id: 
-  m_ContentStateBuildPathProfileVariableName: 
+  m_ContentStateBuildPathProfileVariableName: <default settings path>
   m_CustomContentStateBuildPath: 
   m_ContentStateBuildPath: 
   m_BuildAddressablesWithPlayerBuild: 0
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
-  - {fileID: 11400000, guid: c4cd705c8e04407469ae255b3a581be3, type: 2}
+  - {fileID: 11400000, guid: ce52e85d14dee4d7692ce7d2f408de42, type: 2}
+  - {fileID: 11400000, guid: a85219784b3ab436cb3a0aba242a109e, type: 2}
+  - {fileID: 11400000, guid: d340da81ef3ed4dd3bd1428adb43779f, type: 2}
+  - {fileID: 11400000, guid: 3e32958c12af14859a17de277f446237, type: 2}
+  - {fileID: 11400000, guid: a00218078a875494a8a621bd9de687ee, type: 2}
+  - {fileID: 11400000, guid: 41904c2f386d7447abd79b22746763b3, type: 2}
+  - {fileID: 11400000, guid: d5d6c9689e59e4297b74a480bba35eec, type: 2}
+  - {fileID: 11400000, guid: 09ecb0c82bff149c892fd81946e5fefd, type: 2}
+  - {fileID: 11400000, guid: 9e6164cceb8594b93b56bcdbb8d4f220, type: 2}
+  - {fileID: 11400000, guid: a7b516240ccd540b8a8b78119e874178, type: 2}
+  - {fileID: 11400000, guid: f31b1bfa821fa458b866caa67dd917f3, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
     m_BundleBuildPath: Temp/com.unity.addressables/AssetBundles
   m_ProfileSettings:
     m_Profiles:
     - m_InheritedParent: 
-      m_Id: 0c5cc004d2cfc564d88d8f7819518d6d
+      m_Id: 05f5103f68b9fdf4bab704be322e97c9
       m_ProfileName: Default
       m_Values:
-      - m_Id: 9b8834bc2b88ff84eaaee8e4dfe97b9f
-        m_Value: 'ServerData/[BuildTarget]'
-      - m_Id: 9fec0000d2685d64c9298d0cd80097c7
-        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
-      - m_Id: b22d6bce69bf307458210012ce419062
-        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
-      - m_Id: d97fbfb660c0e0d4985abccaf89ed39d
+      - m_Id: 2ead8d3f29355c14b916b3dd2d7d832f
         m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
-      - m_Id: ead12938162099046add4c465fa7f583
+      - m_Id: 59b1c9eaa96e4e741ad9bd0194d86587
+        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
+      - m_Id: 7777235eb7684b34ca871e99a3a43ff3
+        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
+      - m_Id: a6bc6c155815ba14cb2c5299b588ab0c
         m_Value: <undefined>
+      - m_Id: c005eb184cd18e54aa21929f22dfa8a7
+        m_Value: 'ServerData/[BuildTarget]'
     m_ProfileEntryNames:
-    - m_Id: 9b8834bc2b88ff84eaaee8e4dfe97b9f
-      m_Name: Remote.BuildPath
-      m_InlineUsage: 0
-    - m_Id: 9fec0000d2685d64c9298d0cd80097c7
-      m_Name: Local.LoadPath
-      m_InlineUsage: 0
-    - m_Id: b22d6bce69bf307458210012ce419062
-      m_Name: BuildTarget
-      m_InlineUsage: 0
-    - m_Id: d97fbfb660c0e0d4985abccaf89ed39d
+    - m_Id: 2ead8d3f29355c14b916b3dd2d7d832f
       m_Name: Local.BuildPath
       m_InlineUsage: 0
-    - m_Id: ead12938162099046add4c465fa7f583
+    - m_Id: 59b1c9eaa96e4e741ad9bd0194d86587
+      m_Name: BuildTarget
+      m_InlineUsage: 0
+    - m_Id: 7777235eb7684b34ca871e99a3a43ff3
+      m_Name: Local.LoadPath
+      m_InlineUsage: 0
+    - m_Id: a6bc6c155815ba14cb2c5299b588ab0c
       m_Name: Remote.LoadPath
+      m_InlineUsage: 0
+    - m_Id: c005eb184cd18e54aa21929f22dfa8a7
+      m_Name: Remote.BuildPath
       m_InlineUsage: 0
     m_ProfileVersion: 1
   m_LabelTable:
     m_LabelNames:
     - default
+    - Locale
+    - Locale-da
+    - Locale-en
+    - Locale-fr
+    - Locale-es
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
-  - {fileID: 11400000, guid: 68ebcfe3013114d4281d47d4119579e8, type: 2}
+  - {fileID: 11400000, guid: 3940c5112f61246fa945e5b09439f84d, type: 2}
   m_InitializationObjects: []
   m_CertificateHandlerType:
     m_AssemblyName: 
     m_ClassName: 
   m_ActivePlayerDataBuilderIndex: 2
   m_DataBuilders:
-  - {fileID: 11400000, guid: 622ec2723e500844e9ae132ec5310ae9, type: 2}
-  - {fileID: 11400000, guid: 8187746ee2c6cb14cbb064a143f6d5ed, type: 2}
-  - {fileID: 11400000, guid: 32f8c1eb2b188844a8dea2e594a94aa7, type: 2}
-  m_ActiveProfileId: 0c5cc004d2cfc564d88d8f7819518d6d
+  - {fileID: 11400000, guid: 93dc9912fba2b49edbc018b53641b151, type: 2}
+  - {fileID: 11400000, guid: d6acb248c4a9f47a49a266f6b96c1732, type: 2}
+  - {fileID: 11400000, guid: 9c812c6ac44f242d9adddba43d8cde7d, type: 2}
+  m_ActiveProfileId: 05f5103f68b9fdf4bab704be322e97c9

@@ -13,8 +13,8 @@ public class SoundManager : MonoSingleton<SoundManager>
     private float _sfxVolume = 1f;
     private float _bgmVolume = 1f;
     
-    private bool _isBgmMuted;
-    private bool _isSfxMuted;
+    private bool _isBgmMuted = false;
+    private bool _isSfxMuted = false;
     private float _prevBgmVolume = 1f;
     private float _prevSfxVolume = 1f;
 

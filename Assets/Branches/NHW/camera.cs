@@ -13,6 +13,7 @@ public class camera : MonoBehaviour
     public Transform LeftLimitMark;
     public Transform RightLimitMark;
     public GameObject ColdVFX;
+    public GameObject SnowSlide;
     public SpriteRenderer sr;
     public void SwitchTo(int index)
     {
@@ -30,6 +31,7 @@ public class camera : MonoBehaviour
         else
         {
             ColdVFX.SetActive(false);
+            SnowSlide.SetActive(false);
         }
         _current.Priority = activePriority;
     }
@@ -48,7 +50,7 @@ public class camera : MonoBehaviour
                 Debug.Log("Reached Left Limit");
                 return;
             }
-            _current.gameObject.transform.position+= Vector3.left  * MoveSpeed;
+            _current.gameObject.transform.position+= Vector3.left  * MoveSpeed * Time.deltaTime;
         }
         if(a==2)
         {
@@ -58,12 +60,13 @@ public class camera : MonoBehaviour
                 Debug.Log("Reached Right Limit");
                 return;
             }
-            _current.gameObject.transform.position += Vector3.right * MoveSpeed;
+            _current.gameObject.transform.position += Vector3.right * MoveSpeed*Time.deltaTime;
         }
     }
     public void ColdSetting()
     {
         ColdVFX.SetActive(true);
-
+        SnowSlide.SetActive(true);
+        sr.color = new Color(1f, 1f, 1f, 0f);
     }
 }

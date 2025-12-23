@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,6 +14,8 @@ public class PlayerMove : MonoBehaviour
 
     [SerializeField] private bool _isOnGround;
     [SerializeField] private bool _canJump;
+    [SerializeField] private bool _isJumping = false;
+
     [SerializeField] private float _rayLength = 1f;
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private float _stickDistance = 0.2f;
@@ -27,6 +30,8 @@ public class PlayerMove : MonoBehaviour
 
     [SerializeField] private ParticleSystem _particle;
 
+    private Action OnPlayerDead;
+
     private void Awake()
     {
         _rigid = GetComponent<Rigidbody2D>();
@@ -35,11 +40,15 @@ public class PlayerMove : MonoBehaviour
 
     private void FixedUpdate()
     {
+    }
+    private void Update()
+    {
         GroundCheck();
 
         Move();
 
-        GroundPull();
+        if(_isJumping == false)
+            GroundPull();
 
         if (_isOnGround == true)
         {
@@ -49,9 +58,7 @@ public class PlayerMove : MonoBehaviour
         {
             _particle.Stop();
         }
-    }
-    private void Update()
-    {
+
         MoveHandle();
     }
     private void MoveHandle()
@@ -104,9 +111,8 @@ public class PlayerMove : MonoBehaviour
     {
         float speed = _playerSo.GetMoveSpeed();
 
-        if (_isOnGround == true)
+        if (_isOnGround == true && !_isJumping)
         {
-            _rigid.gravityScale = 5f;
 
             Vector2 alongGround = Vector2.Perpendicular(_groundNormal);//지금 바닥의 법선의 수직 구한거
             if (alongGround.x < 0)//오른쪽 방향이어야 하니까 음수면 양수로 바꿔줌
@@ -124,7 +130,6 @@ public class PlayerMove : MonoBehaviour
         }
         else
         {
-            _rigid.gravityScale = 1f;
 
             Vector2 vel = _rigid.linearVelocity;
             vel.x = speed;
@@ -140,18 +145,19 @@ public class PlayerMove : MonoBehaviour
 
         if (hit.collider != null)
         {
-            _rigid.AddForce(Vector2.down * _extraGroundGravity, ForceMode2D.Force);
+            _rigid.AddForce(-_groundNormal * _extraGroundGravity, ForceMode2D.Force);
         }
     }
     private void Jump()
     {
+        _isJumping = true;
         _anime.SetTrigger(_jumpHash);
         Debug.Log("Jump");
         _canJump = false;
         Vector2 vel = _rigid.linearVelocity;
         vel.y = 0;
         _rigid.linearVelocity = vel;
-        _rigid.AddForce(Vector2.up * _playerSo.jumpForce, ForceMode2D.Impulse);
+        _rigid.AddForce(_groundNormal * _playerSo.jumpForce, ForceMode2D.Impulse);
     }
     private void Spin(float dir)
     {
@@ -168,6 +174,8 @@ public class PlayerMove : MonoBehaviour
         _velocity = 0f;
         _totalRotation = 0f;
         _rigid.angularVelocity = 0f;
+
+        GroundPull();
 
         float angle = transform.eulerAngles.z;
 
@@ -187,7 +195,13 @@ public class PlayerMove : MonoBehaviour
         else
         {
             Debug.Log("Landing Fail!");
+            OnPlayerDead?.Invoke();
         }
+        _isJumping = false;
+    }
+    private void Die()
+    {
+        gameObject.SetActive(false);
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -201,5 +215,13 @@ public class PlayerMove : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + Vector3.down * _rayLength);
+    }
+    private void OnEnable()
+    {
+        OnPlayerDead += Die;
+    }
+    private void OnDisable()
+    {
+        OnPlayerDead -= Die;
     }
 }

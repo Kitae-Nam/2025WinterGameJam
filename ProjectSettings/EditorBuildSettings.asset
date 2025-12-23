@@ -9,11 +9,8 @@ EditorBuildSettings:
     path: Assets/Branches/JJK/01.Scenes/StartScene.unity
     guid: 3a59c2d87ec7a104ea453d81a997a096
   - enabled: 1
-    path: Assets/Branches/JJK/01.Scenes/JJK_Scene.unity
-    guid: 596fcf9dad48df943acd19e029955148
-  - enabled: 1
-    path: Assets/Branches/JJK/01.Scenes/EndingScene.unity
-    guid: 09a4c0fa60006c14abfae8039e13dd65
+    path: Assets/Branches/NHW/MapTestScene.unity
+    guid: fb5a6ae6e0beefd429081d8f4b44d303
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 1f6cecd17afaa214cbc99a5ad4927a60, type: 2}
     com.unity.localization.settings: {fileID: 11400000, guid: 795ec91fca85f4cccbb87e8cbcbfff81, type: 2}

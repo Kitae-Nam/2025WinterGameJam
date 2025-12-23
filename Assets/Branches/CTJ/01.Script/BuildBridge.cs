@@ -84,6 +84,9 @@ public class BuildBridge : MonoSingleton<BuildBridge>
         activeNodeId = -1;
         moneyText.text = RemainingBudget;
 
+        previewLine.useWorldSpace = true;
+        previewLine.positionCount = 2;
+
         foreach (var n in FindObjectsByType<NodeView>(FindObjectsSortMode.None))
         {
             if (n == null) continue;

@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 public class PlayerMove : MonoBehaviour
 {
-    [SerializeField] private PlayerSO _playerSo;
+    public PlayerSO _playerSo;
     private Rigidbody2D _rigid;
     private Animator _anime;
 

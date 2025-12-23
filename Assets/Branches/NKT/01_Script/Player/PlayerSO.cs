@@ -45,6 +45,6 @@ public class PlayerSO : ScriptableObject
     }
     public void Reset()
     {
-        SetMoveSpeed(5f);
+        SetMoveSpeed(minSpeed);
     }
 }

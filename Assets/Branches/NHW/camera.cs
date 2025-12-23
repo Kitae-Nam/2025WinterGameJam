@@ -17,6 +17,8 @@ public class camera : MonoBehaviour
     public GameObject ColdVFX;
     public GameObject SnowSlide;
     public SpriteRenderer sr;
+
+    public Transform SnowSpawner;
     public void SwitchTo(int index)
     {
         if (cameras == null || cameras.Length == 0) return;
@@ -89,6 +91,7 @@ public class camera : MonoBehaviour
     {
         ColdVFX.SetActive(true);
         SnowSlide.SetActive(true);
+        SnowSlide.transform.position = SnowSpawner.position;
         sr.color = new Color(1f, 1f, 1f, 0f);
     }
 }

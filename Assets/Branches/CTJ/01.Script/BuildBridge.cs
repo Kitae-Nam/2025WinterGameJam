@@ -84,6 +84,9 @@ public class BuildBridge : MonoSingleton<BuildBridge>
         activeNodeId = -1;
         moneyText.text = RemainingBudget;
 
+        previewLine.useWorldSpace = true;
+        previewLine.positionCount = 2;
+
         foreach (var n in FindObjectsByType<NodeView>(FindObjectsSortMode.None))
         {
             if (n == null) continue;
@@ -102,12 +105,14 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
     private void Update()
     {
+        /*
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             if (!isSimulating) StartSimulation();
             else StopSimulation();
             return;
         }
+        */
 
         if (isSimulating) return;
 

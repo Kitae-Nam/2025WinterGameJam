@@ -26,9 +26,6 @@ public class StageClearUI : MonoBehaviour
     private void Update()
     {
         _timer += Time.deltaTime;
-        
-        if (Keyboard.current.tKey.wasPressedThisFrame)
-            Show();
     }
 
     public void Show()

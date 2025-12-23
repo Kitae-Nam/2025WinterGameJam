@@ -15,9 +15,6 @@ public class GameOverUI : MonoBehaviour
     private void Update()
     {
         _timer += Time.deltaTime;
-        
-        if (Keyboard.current.rKey.wasPressedThisFrame)
-            Show();
     }
 
     public void Show()

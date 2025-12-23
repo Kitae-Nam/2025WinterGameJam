@@ -14,12 +14,6 @@ public class EndingUI : MonoBehaviour
         Show();
     }
 
-    private void Update()
-    {
-        if (Keyboard.current.eKey.wasPressedThisFrame)
-            Show();
-    }
-
     public void Show()
     {
         credit.gameObject.SetActive(true);

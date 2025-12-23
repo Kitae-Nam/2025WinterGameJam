@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -16,6 +17,9 @@ public class PlayerMove : MonoBehaviour
     private float _velocity;
     private float _totalRotation;
 
+    [SerializeField] private float _extraGroundGravity = 30f;
+    [SerializeField] private float _softStickRayLength = 0.3f;
+
     private void Awake()
     {
         _rigid = GetComponent<Rigidbody2D>();
@@ -27,9 +31,7 @@ public class PlayerMove : MonoBehaviour
 
         Move();
 
-        //StickToGround();
-
-        _rigid.linearVelocity = new Vector2(_playerSo.GetMoveSpeed(), _rigid.linearVelocity.y);
+        GroundPull();
     }
     private void Update()
     {
@@ -39,10 +41,6 @@ public class PlayerMove : MonoBehaviour
     {
         if (_isOnGround == true)
         {
-            if (Input.GetKey(KeyCode.Space) && _canJump == true)
-            {
-                Jump();
-            }
             if (Input.GetKey(KeyCode.D))
             {
                 _playerSo.Accelarte();
@@ -50,6 +48,10 @@ public class PlayerMove : MonoBehaviour
             else if (Input.GetKey(KeyCode.A))
             {
                 _playerSo.Decelerate();
+            }
+            if (Input.GetKey(KeyCode.Space) && _canJump == true)
+            {
+                Jump();
             }
         }
         else
@@ -85,33 +87,41 @@ public class PlayerMove : MonoBehaviour
 
         if (_isOnGround == true)
         {
+            _rigid.gravityScale = 5f;
+
             Vector2 alongGround = Vector2.Perpendicular(_groundNormal);//지금 바닥의 법선의 수직 구한거
             if (alongGround.x < 0)//오른쪽 방향이어야 하니까 음수면 양수로 바꿔줌
                 alongGround = -alongGround;
 
-            _rigid.linearVelocity = alongGround.normalized * speed;
+            _rigid.linearVelocity = new Vector2(alongGround.normalized.x * speed, _rigid.linearVelocity.y);
+
+            if (_rigid.linearVelocity.y > 0f)
+            {
+                var v = _rigid.linearVelocity;
+                v.y *= 0.5f;
+                _rigid.linearVelocity = v;
+                _rigid.AddForce(-_groundNormal * _extraGroundGravity, ForceMode2D.Force);
+            }
         }
         else
         {
+            _rigid.gravityScale = 1f;
+
             Vector2 vel = _rigid.linearVelocity;
             vel.x = speed;
             _rigid.linearVelocity = vel;
         }
     }
-    private void StickToGround()
+    private void GroundPull()
     {
-        RaycastHit2D ray = Physics2D.Raycast(transform.position + Vector3.up * 0.1f, Vector2.down, _stickDistance + _rayLength, _groundLayer);
+        if (_isOnGround == true) return;
+        if(_rigid.linearVelocity.y >= 0f) return;
 
-        if(ray.collider != null)
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, _rayLength + _stickDistance, _groundLayer);
+
+        if (hit.collider != null)
         {
-            Vector3 pos = transform.position;
-            pos.y = ray.point.y + _stickDistance;
-            transform.position = pos;
-
-            Vector2 vel = _rigid.linearVelocity;
-            if (vel.y > 0)
-                vel.y = 0;
-            _rigid.linearVelocity = vel;
+            _rigid.AddForce(Vector2.down * _extraGroundGravity, ForceMode2D.Force);
         }
     }
     private void Jump()
@@ -120,6 +130,7 @@ public class PlayerMove : MonoBehaviour
         _canJump = false;
         Vector2 vel = _rigid.linearVelocity;
         vel.y = 0;
+        _rigid.linearVelocity = vel;
         _rigid.AddForce(Vector2.up * _playerSo.jumpForce, ForceMode2D.Impulse);
     }
     private void Spin(float dir)
@@ -131,10 +142,37 @@ public class PlayerMove : MonoBehaviour
         _rigid.angularVelocity = _velocity;
         _totalRotation += _velocity * Time.deltaTime;
     }
+    private void Landing()
+    {
+        _velocity = 0f;
+        _totalRotation = 0f;
+        _rigid.angularVelocity = 0f;
+
+        float angle = transform.eulerAngles.z;
+
+        if (angle > 180f)
+            angle -= 360f;
+
+        float absAngle = Mathf.Abs(angle);
+
+        if (absAngle <= 20f)
+        {
+            Debug.Log("Landing Perfect Success!");
+        }
+        else if (absAngle <= 200f)
+        {
+            Debug.Log("Landing Success!");
+        }
+        else
+        {
+            Debug.Log("Landing Fail!");
+        }
+    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
+            Landing();
             _canJump = true;
         }
     }

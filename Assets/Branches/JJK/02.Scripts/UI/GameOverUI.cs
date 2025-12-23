@@ -8,22 +8,24 @@ public class GameOverUI : MonoBehaviour
 {
     [SerializeField] private GameObject panel;
     [SerializeField] private RectTransform window;
-    [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI timeText;
+
+    private float _timer;
 
     private void Update()
     {
+        _timer += Time.deltaTime;
+        
         if (Keyboard.current.rKey.wasPressedThisFrame)
-            Show(123, "01:12");
+            Show();
     }
 
-    public void Show(int score, string time)
+    public void Show()
     {
         panel.SetActive(true);
         Time.timeScale = 0f;
-
-        scoreText.text = score.ToString();
-        timeText.text = time;
+        
+        timeText.text = TimeSpan.FromSeconds(_timer).ToString(@"mm\:ss\.ff");
 
         PlayEnterAnimation();
     }
@@ -51,15 +53,10 @@ public class GameOverUI : MonoBehaviour
     
     private void PlayInfoFadeIn()
     {
-        scoreText.alpha = 0f;
         timeText.alpha = 0f;
 
         Sequence seq = DOTween.Sequence();
         seq.SetUpdate(true);
-
-        seq.Append(
-            scoreText.DOFade(1f, 0.4f)
-        );
 
         seq.AppendInterval(0.1f);
 

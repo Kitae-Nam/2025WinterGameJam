@@ -30,6 +30,7 @@ public class NHWPlayer : MonoBehaviour
     public void Setting()
     {
         _cameraController.SwitchTo(0);
+        GameObject.SetActive(false);
     }
     private void Update()
     {

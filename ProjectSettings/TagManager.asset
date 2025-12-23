@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Undefined
   - Ground
+  - DeadBox
   layers:
   - Default
   - TransparentFX

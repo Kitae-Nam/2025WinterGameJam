@@ -38,7 +38,8 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     [SerializeField] float total = 200.0f;
     [SerializeField] float spent = 0.0f;
     [SerializeField] TextMeshProUGUI moneyText;
-    public string RemainingBudget => (total - spent).ToString("F2");
+    public string RemainingBudgetUI => (total - spent).ToString("F2");
+    public int RemainingBudget => (int)(total - spent);
     public event Action<float, float> OnBudgetChanged;
 
     [Header("Zone")]
@@ -55,7 +56,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     [Header("Simulating")]
     [SerializeField] float nodeMass = 1f;
     [SerializeField] float gravityScale = 1f;
-    [SerializeField] float jointBreakForce = 250f; // ÀÎÀå °­µµ, ÀÌ°Å ÀÌ»ó ´Ã¾î³ª¸é ¹Ú»ì³² (¾Æ¸¶? ¸Â³ª?)
+    [SerializeField] float jointBreakForce = 250f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½Ì°ï¿½ ï¿½Ì»ï¿½ ï¿½Ã¾î³ªï¿½ï¿½ ï¿½Ú»ì³² (ï¿½Æ¸ï¿½? ï¿½Â³ï¿½?)
     [SerializeField] bool isSimulating = false;
 
     [Header("UI")]
@@ -71,11 +72,11 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     readonly List<EdgeView> edgeList = new();
     readonly Dictionary<int, Vector2> angleDir = new();
 
-    // »ó¼Ó
+    // ï¿½ï¿½ï¿½
     readonly Dictionary<int, List<int>> childrenMap = new();
     readonly Dictionary<int, EdgeView> edgeByChild = new();
 
-    // º¹±¸ À§Ä¡
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
     readonly Dictionary<int, Vector2> savedPos = new();
     readonly Dictionary<int, float> savedRot = new();
 
@@ -86,7 +87,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
         exitBtn.SetActive(false);
 
         activeNodeId = -1;
-        moneyText.text = RemainingBudget;
+        moneyText.text = RemainingBudgetUI;
 
         previewLine.useWorldSpace = true;
         previewLine.positionCount = 2;
@@ -136,7 +137,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
                 {
                     float refund = DeleteNode(node.Id);
                     spent = Mathf.Max(0f, spent - refund);
-                    moneyText.text = RemainingBudget;
+                    moneyText.text = RemainingBudgetUI;
                     OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
                     ActiveNodeId = -1;
                     return;
@@ -172,7 +173,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
                         Destroy(edge.gameObject);
                     }
 
-                    moneyText.text = RemainingBudget;
+                    moneyText.text = RemainingBudgetUI;
                     OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
                     ActiveNodeId = -1;
                     return;
@@ -180,7 +181,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
             }
 
             ActiveNodeId = -1;
-            moneyText.text = RemainingBudget;
+            moneyText.text = RemainingBudgetUI;
         }
 
         UpdatePreview(GetMousePos());
@@ -317,7 +318,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
         angleDir[targetId] = ((Vector2)targetNode.transform.position - (Vector2)fromNode.transform.position).normalized;
 
         spent += cost;
-        moneyText.text = RemainingBudget;
+        moneyText.text = RemainingBudgetUI;
         OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
 
         soundManager.PlayOneShot(buildSound);
@@ -454,7 +455,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
             }
         }
 
-        // ÀÌ·± ¹ö±×°¡ ¸ØÃßÁö ¾ÊÀÝ¾Æ?
+        // ï¿½Ì·ï¿½ ï¿½ï¿½ï¿½×°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ý¾ï¿½?
         /*
         if (edgeByChild.TryGetValue(nodeId, out var incomingEdge) && incomingEdge != null)
         {
@@ -493,8 +494,8 @@ public class BuildBridge : MonoSingleton<BuildBridge>
         return new Vector2(world.x, world.y);
     }
 
-    // ³»°¡ ½èÁö¸¸ ÀÌ°Ô ¿Ö ÀÛµ¿ÇÏ´ÂÁö´Â ¸ð¸£°Ú´Ù(»ç½Ç ¾ËÁöµµ ¸ð¸¥´Ù, ¾öÃ»³­ ¹ö±× ÇÈ½º!!)
-    // ±Ùµ¥ ÀÏ´Ü µÇÀÝ¾Æ ÇÑÀÜÇØ~
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì°ï¿½ ï¿½ï¿½ ï¿½Ûµï¿½ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ð¸£°Ú´ï¿½(ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ð¸¥´ï¿½, ï¿½ï¿½Ã»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½È½ï¿½!!)
+    // ï¿½Ùµï¿½ ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½Ý¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½~
     public void StartSimulation()
     {
         if (isSimulating) return;

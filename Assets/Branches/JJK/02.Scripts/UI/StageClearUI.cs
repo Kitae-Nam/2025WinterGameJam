@@ -1,9 +1,12 @@
 using System;
 using DG.Tweening;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.SceneManagement;
+using Sequence = DG.Tweening.Sequence;
 
 public class StageClearUI : MonoBehaviour
 {
@@ -13,6 +16,7 @@ public class StageClearUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timeText;
 
     private float _targetY;
+    private float _timer;
 
     private void Awake()
     {
@@ -21,6 +25,8 @@ public class StageClearUI : MonoBehaviour
 
     private void Update()
     {
+        _timer += Time.deltaTime;
+        
         if (Keyboard.current.tKey.wasPressedThisFrame)
             Show();
     }
@@ -58,7 +64,7 @@ public class StageClearUI : MonoBehaviour
 
         seq.OnComplete(() =>
         {
-            PlayScoreAnimation(123);
+            PlayScoreAnimation(BuildBridge.Instance.RemainingBudget);
         });
     }
     
@@ -92,6 +98,7 @@ public class StageClearUI : MonoBehaviour
     private void PlayTimeFadeIn()
     {
         timeText.alpha = 0f;
+        timeText.text = TimeSpan.FromSeconds(_timer).ToString(@"mm\:ss\.ff");
 
         timeText
             .DOFade(1f, 0.4f)

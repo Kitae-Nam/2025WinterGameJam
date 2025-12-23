@@ -1,4 +1,6 @@
 using System;
+using System.Media;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
@@ -34,10 +36,13 @@ public class PlayerMove : MonoBehaviour
 
     public UnityEvent OnPlayerDead;
 
+    [SerializeField] private AudioSource _audioSource;
+
     private void Awake()
     {
         _rigid = GetComponent<Rigidbody2D>();
         _anime = GetComponentInChildren<Animator>();
+        _audioSource = GetComponent<AudioSource>();
     }
     private void Update()
     {
@@ -207,6 +212,8 @@ public class PlayerMove : MonoBehaviour
         _isDead = true;
         _rigid.angularVelocity = 0f;
         _rigid.linearVelocity = Vector3.zero;
+        _audioSource.Play();
+
         Time.timeScale = 0f;
 
     }

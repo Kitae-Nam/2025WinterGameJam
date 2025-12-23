@@ -18,6 +18,8 @@ public class SceneChanger : MonoSingleton<SceneChanger>
         }
         
         DontDestroyOnLoad(gameObject);
+        
+        Camera.main.orthographicSize = 5f;
     }
     
     public void ChangeScene(int index)
@@ -25,14 +27,24 @@ public class SceneChanger : MonoSingleton<SceneChanger>
         fadeImage.gameObject.SetActive(true);
         fadeImage.color = new Color(0, 0, 0, 0);
 
-        fadeImage
-            .DOFade(1f, fadeTime)
-            .SetUpdate(true)
-            .OnComplete(() =>
-            {
-                SceneManager.LoadScene(index);
-                FadeOut();
-            });
+        Sequence seq = DOTween.Sequence();
+        seq.SetUpdate(true);
+
+        seq.Append(
+            Camera.main
+                .DOOrthoSize(4.6f, fadeTime)
+                .SetEase(Ease.OutCubic)
+        );
+
+        seq.Join(
+            fadeImage.DOFade(1f, fadeTime)
+        );
+
+        seq.OnComplete(() =>
+        {
+            SceneManager.LoadScene(index);
+            FadeOut();
+        });
     }
 
     private void FadeOut()

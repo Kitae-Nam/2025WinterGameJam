@@ -23,7 +23,7 @@ public class NHWPlayer : MonoBehaviour
         {
             Debug.Log("Switching to camera 2");
             AAA?.Invoke();
-
+        }
             if (Keyboard.current.aKey.isPressed)
             {
                 Debug.Log("A");
@@ -47,4 +47,4 @@ public class NHWPlayer : MonoBehaviour
             }
         }
     }
-}
+

@@ -37,10 +37,6 @@ public class PlayerMove : MonoBehaviour
         _rigid = GetComponent<Rigidbody2D>();
         _anime = GetComponentInChildren<Animator>();
     }
-
-    private void FixedUpdate()
-    {
-    }
     private void Update()
     {
         GroundCheck();
@@ -152,7 +148,6 @@ public class PlayerMove : MonoBehaviour
     {
         _isJumping = true;
         _anime.SetTrigger(_jumpHash);
-        Debug.Log("Jump");
         _canJump = false;
         Vector2 vel = _rigid.linearVelocity;
         vel.y = 0;
@@ -187,8 +182,9 @@ public class PlayerMove : MonoBehaviour
         if (absAngle <= 20f)
         {
             Debug.Log("Landing Perfect Success!");
+            CameraShake.Instance.ShakeCamera();
         }
-        else if (absAngle <= 200f)
+        else if (absAngle <= 100f)
         {
             Debug.Log("Landing Success!");
         }
@@ -197,6 +193,7 @@ public class PlayerMove : MonoBehaviour
             Debug.Log("Landing Fail!");
             OnPlayerDead?.Invoke();
         }
+
         _isJumping = false;
     }
     private void Die()

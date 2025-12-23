@@ -6,6 +6,9 @@ using UnityEngine.InputSystem;
 
 public class BuildBridge : MonoSingleton<BuildBridge>
 {
+    [Header("Cam")]
+    [SerializeField] Camera cam;
+
     [Header("Node State")]
     [SerializeField] int activeNodeId = -1;
     public int ActiveNodeId
@@ -120,7 +123,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
                 }
             }
 
-            float pickRadius = 0.08f;
+            float pickRadius = 0.8f;
             Collider2D edgeHit = Physics2D.OverlapCircle(GetMousePos(), pickRadius, edgeLayer);
             if (edgeHit != null)
             {
@@ -164,24 +167,32 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
+            Debug.Log("클릭 입력됨");
             HandleBuild(GetMousePos());
         }
     }
 
     private void HandleBuild(Vector2 mousePos)
     {
+        Debug.Log("핸들 빌드 진입됨");
+
         if (ActiveNodeId < 0)
         {
+            Debug.Log("여기까진 되야 되는데");
+            Debug.Log($"mousePos={mousePos}, nodeLayerMask={nodeLayer.value}");
             Collider2D hit = Physics2D.OverlapPoint(mousePos, nodeLayer);
             if (hit == null) return;
 
+            Debug.Log("뭔가 있긴 함");
             NodeView clicked = hit.GetComponent<NodeView>();
             if (clicked == null) return;
 
+            Debug.Log("그리고 노드 뷰가 있음");
             if (!nodeDictionary.ContainsKey(clicked.Id))
                 nodeDictionary[clicked.Id] = clicked;
 
             ActiveNodeId = clicked.Id;
+            Debug.Log("노드 진입: " + clicked.Id);
             return;
         }
 
@@ -434,8 +445,13 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
     Vector2 GetMousePos()
     {
-        Vector3 p = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        return new Vector2(p.x, p.y);
+        if (!cam) cam = Camera.main;
+
+        Vector2 screen = Mouse.current.position.ReadValue();
+        float z = -cam.transform.position.z;
+
+        Vector3 world = cam.ScreenToWorldPoint(new Vector3(screen.x, screen.y, z));
+        return new Vector2(world.x, world.y);
     }
 
     // 내가 썼지만 이게 왜 작동하는지는 모르겠다(사실 알지도 모른다, 엄청난 버그 픽스!!)

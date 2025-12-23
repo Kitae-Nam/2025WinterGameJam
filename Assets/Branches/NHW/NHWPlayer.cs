@@ -8,11 +8,11 @@ public class NHWPlayer : MonoBehaviour
     public event Action AAA;
     public Transform Transform;
     public GameObject GameObject;
-    Rigidbody2D rb;
+    public Rigidbody2D rb;
     private void Start()
     {
         _cameraController.SwitchTo(0);
-        rb = GetComponent<Rigidbody2D>();
+       
 
         AAA += () => _cameraController.SwitchTo(1);
         AAA += SettingP;
@@ -20,7 +20,11 @@ public class NHWPlayer : MonoBehaviour
     public void SettingP()
     {
         GameObject.transform.position = Transform.position;
-        GameObject.SetActive(true);
+        GameObject.GetComponent<PlayerMove>()._playerSo.Reset();
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        GameObject.transform.rotation = Quaternion.Euler(0f, 0f, -40f);
+
     }
     private void Update()
     {

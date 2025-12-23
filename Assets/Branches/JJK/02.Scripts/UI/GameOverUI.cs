@@ -46,6 +46,7 @@ public class GameOverUI : MonoBehaviour
         );
         
         seq.AppendCallback(PlayInfoFadeIn);
+        seq.AppendCallback(PlayGameOverZoom);
     }
     
     private void PlayInfoFadeIn()
@@ -65,5 +66,13 @@ public class GameOverUI : MonoBehaviour
         seq.Append(
             timeText.DOFade(1f, 0.4f)
         );
+    }
+    
+    private void PlayGameOverZoom()
+    {
+        Camera.main
+            .DOOrthoSize(5.5f, 1.5f)
+            .SetEase(Ease.OutQuad)
+            .SetUpdate(true);
     }
 }

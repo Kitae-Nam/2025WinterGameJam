@@ -205,11 +205,22 @@ public class BuildBridge : MonoSingleton<BuildBridge>
         Vector2 targetPos = targetNode != null ? (Vector2)targetNode.transform.position : mousePos;
 
         if (buildZone != null && !buildZone.OverlapPoint(targetPos))
+        {
+            OnText("Outside Permitted Zone.");
             return;
+        }
 
         float dist = Vector2.Distance(fromNode.transform.position, targetPos);
-        if (dist < minLineLength || dist > maxLineLength)
+        if (dist < minLineLength)
+        {
+            OnText("The Distance Is Too Short.");
             return;
+        }
+        else if (dist > maxLineLength)
+        {
+            OnText("The Distance Is Too Far.");
+            return;
+        }
 
         if (isLimitAngle)
         {
@@ -217,12 +228,18 @@ public class BuildBridge : MonoSingleton<BuildBridge>
             Vector2 baseDir = angleDir.TryGetValue(fromNode.Id, out var prevDir) ? prevDir : Vector2.right;
 
             if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle)
+            {
+                OnText("The Angle Is Too Large.");
                 return;
+            }
         }
 
         float cost = dist * costPerUnit;
         if (spent + cost > total)
+        {
+            OnText("Budget Shortage.");
             return;
+        }
 
         bool createdNew = false;
         int targetId;
@@ -345,11 +362,14 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
         if (disablePreviewWhenInvalid && !valid)
         {
-            previewLine.enabled = false;
+            previewLine.startColor = Color.red;
+            previewLine.endColor = Color.red;
             return;
         }
 
         previewLine.enabled = true;
+        previewLine.startColor = Color.white;
+        previewLine.endColor = Color.white;
         previewLine.SetPosition(0, fromNode.transform.position);
         previewLine.SetPosition(1, targetPos);
     }
@@ -422,6 +442,8 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     // ±Ÿµ• ¿œ¥‹ µ«¿›æ∆ «—¿‹«ÿ~
     public void StartSimulation()
     {
+        if (isSimulating) return;
+
         savedPos.Clear();
         savedRot.Clear();
 
@@ -551,5 +573,11 @@ public class BuildBridge : MonoSingleton<BuildBridge>
         }
 
         if (previewLine) previewLine.enabled = true;
+    }
+
+    private void OnText(string message)
+    {
+        StopAllCoroutines();
+        StartCoroutine(BuildEventManager.Instance.MessageOn(message));
     }
 }

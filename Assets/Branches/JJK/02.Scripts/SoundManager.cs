@@ -134,5 +134,6 @@ public enum Sound
     GameOver,
     Build,
     Run,
-    Jump
+    Jump,
+    UIClick
 }

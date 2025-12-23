@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 public class PlayerMove : MonoBehaviour
@@ -15,6 +16,7 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private bool _isOnGround;
     [SerializeField] private bool _canJump;
     [SerializeField] private bool _isJumping = false;
+    private bool _isDead = false;
 
     [SerializeField] private float _rayLength = 1f;
     [SerializeField] private LayerMask _groundLayer;
@@ -30,19 +32,17 @@ public class PlayerMove : MonoBehaviour
 
     [SerializeField] private ParticleSystem _particle;
 
-    private Action OnPlayerDead;
+    public UnityEvent OnPlayerDead;
 
     private void Awake()
     {
         _rigid = GetComponent<Rigidbody2D>();
         _anime = GetComponentInChildren<Animator>();
     }
-
-    private void FixedUpdate()
-    {
-    }
     private void Update()
     {
+        if (_isDead) return;
+
         GroundCheck();
 
         Move();
@@ -152,7 +152,6 @@ public class PlayerMove : MonoBehaviour
     {
         _isJumping = true;
         _anime.SetTrigger(_jumpHash);
-        Debug.Log("Jump");
         _canJump = false;
         Vector2 vel = _rigid.linearVelocity;
         vel.y = 0;
@@ -184,24 +183,32 @@ public class PlayerMove : MonoBehaviour
 
         float absAngle = Mathf.Abs(angle);
 
+        Debug.Log($"Landing Angle : {absAngle}");
         if (absAngle <= 20f)
         {
             Debug.Log("Landing Perfect Success!");
+            CameraShake.Instance.ShakeCamera();
         }
-        else if (absAngle <= 200f)
+        else if (absAngle <= 100f)
         {
             Debug.Log("Landing Success!");
         }
         else
         {
             Debug.Log("Landing Fail!");
-            OnPlayerDead?.Invoke();
+            OnPlayerDead.Invoke();
         }
+
         _isJumping = false;
     }
-    private void Die()
+    public void Die()
     {
-        gameObject.SetActive(false);
+        Debug.Log("Player Dead");
+        _isDead = true;
+        _rigid.angularVelocity = 0f;
+        _rigid.linearVelocity = Vector3.zero;
+        Time.timeScale = 0f;
+
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -215,13 +222,5 @@ public class PlayerMove : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + Vector3.down * _rayLength);
-    }
-    private void OnEnable()
-    {
-        OnPlayerDead += Die;
-    }
-    private void OnDisable()
-    {
-        OnPlayerDead -= Die;
     }
 }

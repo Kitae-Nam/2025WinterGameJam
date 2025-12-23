@@ -173,18 +173,14 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Debug.Log("Å¬¸¯ ÀÔ·ÂµÊ");
             HandleBuild(GetMousePos());
         }
     }
 
     private void HandleBuild(Vector2 mousePos)
     {
-        Debug.Log("ÇÚµé ºôµå ÁøÀÔµÊ");
-
         if (ActiveNodeId < 0)
         {
-            Debug.Log($"mousePos={mousePos}, nodeLayerMask={nodeLayer.value}");
             Collider2D hit = Physics2D.OverlapPoint(mousePos, nodeLayer);
             if (hit == null) return;
 

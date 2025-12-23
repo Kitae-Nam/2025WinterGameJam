@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1d7e9bedcfe3f447b05767c83e84a63, type: 3}
   m_Name: PlayerSO
   m_EditorClassIdentifier: 
-  maxSpeed: 100
+  maxSpeed: 90
   minSpeed: 3
-  moveSpeed: 3
+  moveSpeed: 90
   acceleration: 0.4
   deceleration: 0.1
   rotationAcceleration: 450

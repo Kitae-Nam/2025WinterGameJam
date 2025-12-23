@@ -11,9 +11,9 @@ public class PlayerSO : ScriptableObject
     public float acceleration = 0.01f;
     [Range(0.01f, 3f)]
     public float deceleration = 0.01f;
-    [Range(1f, 500f)]
+    [Range(1f, 1000f)]
     public float rotationAcceleration = 150f;
-    [Range(1f, 300f)]
+    [Range(1f, 1000f)]
     public float rotationDeceleration = 100f;
     public float maxRotationSpeed = 200f;
 

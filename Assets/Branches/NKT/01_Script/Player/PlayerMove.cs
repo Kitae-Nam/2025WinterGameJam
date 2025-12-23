@@ -5,6 +5,11 @@ public class PlayerMove : MonoBehaviour
 {
     [SerializeField] private PlayerSO _playerSo;
     private Rigidbody2D _rigid;
+    private Animator _anime;
+
+    private readonly int _jumpHash = Animator.StringToHash("IsJump");
+    private readonly int _sitHash = Animator.StringToHash("IsSit");
+    private readonly int _standHash = Animator.StringToHash("IsStand");
 
     [SerializeField] private bool _isOnGround;
     [SerializeField] private bool _canJump;
@@ -20,9 +25,12 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private float _extraGroundGravity = 30f;
     [SerializeField] private float _softStickRayLength = 0.3f;
 
+    [SerializeField] private ParticleSystem _particle;
+
     private void Awake()
     {
         _rigid = GetComponent<Rigidbody2D>();
+        _anime = GetComponentInChildren<Animator>();
     }
 
     private void FixedUpdate()
@@ -32,6 +40,15 @@ public class PlayerMove : MonoBehaviour
         Move();
 
         GroundPull();
+
+        if (_isOnGround == true)
+        {
+            _particle.Play();
+        }
+        else
+        {
+            _particle.Stop();
+        }
     }
     private void Update()
     {
@@ -44,10 +61,12 @@ public class PlayerMove : MonoBehaviour
             if (Input.GetKey(KeyCode.D))
             {
                 _playerSo.Accelarte();
+                _anime.SetTrigger(_sitHash);
             }
             else if (Input.GetKey(KeyCode.A))
             {
                 _playerSo.Decelerate();
+                _anime.SetTrigger(_standHash);
             }
             if (Input.GetKey(KeyCode.Space) && _canJump == true)
             {
@@ -126,6 +145,7 @@ public class PlayerMove : MonoBehaviour
     }
     private void Jump()
     {
+        _anime.SetTrigger(_jumpHash);
         Debug.Log("Jump");
         _canJump = false;
         Vector2 vel = _rigid.linearVelocity;
@@ -135,6 +155,7 @@ public class PlayerMove : MonoBehaviour
     }
     private void Spin(float dir)
     {
+        _anime.SetTrigger(_sitHash);
         float targetVelocity = dir * _playerSo.maxRotationSpeed;
 
         _velocity = Mathf.MoveTowards(_velocity, targetVelocity, _playerSo.rotationAcceleration * Time.deltaTime);

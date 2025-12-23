@@ -31,11 +31,6 @@ public class OptionUI : MonoBehaviour
         sfxSlider.onValueChanged.AddListener(OnSfxSliderChanged);
     }
     
-    public void OnClickNext()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-    }
-    
     private void OnBgmSliderChanged(float value)
     {
         SoundManager.Instance.SetBgmVolume(value);
@@ -68,7 +63,6 @@ public class OptionUI : MonoBehaviour
 
     public void ToggleSfx()
     {
-        
         SoundManager.Instance.SfxMute();
         UpdateIcon();
     }
@@ -89,6 +83,9 @@ public class OptionUI : MonoBehaviour
         bool isOpen = !optionUI.activeSelf;
         optionUI.SetActive(isOpen);
         Time.timeScale = isOpen ? 0 : 1;
+        
+        if (SceneManager.GetActiveScene().buildIndex == 0)
+            Time.timeScale = 1;
 
         if (isOpen)
         {
@@ -101,12 +98,23 @@ public class OptionUI : MonoBehaviour
     public void OnClickAgain()
     {
         SoundManager.Instance.PlaySound(Sound.UIClick);
-        SceneManager.LoadScene(1);
+        SceneChanger.Instance.ChangeScene(SceneManager.GetActiveScene().buildIndex);
+        Time.timeScale = 1;
+
+    }
+    
+    public void OnClickNext()
+    {
+        SoundManager.Instance.PlaySound(Sound.UIClick);
+        SceneChanger.Instance.ChangeScene(SceneManager.GetActiveScene().buildIndex + 1);
+        Time.timeScale = 1;
+
     }
 
     public void OnClickHome()
     {
         SoundManager.Instance.PlaySound(Sound.UIClick);
-        SceneManager.LoadScene(0);
+        SceneChanger.Instance.ChangeScene(0);
+        Time.timeScale = 1;
     }
 }

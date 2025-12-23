@@ -171,6 +171,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SnowParticle
       objectReference: {fileID: 0}
+    - target: {fileID: 5730990209440116453, guid: 785b49ed181f4d644af68d2fed654b11, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7885821233525938092, guid: 785b49ed181f4d644af68d2fed654b11, type: 3}
       propertyPath: prewarm
       value: 1
@@ -200,12 +204,16 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7885821233525938092, guid: 785b49ed181f4d644af68d2fed654b11, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 7885821233525938092, guid: 785b49ed181f4d644af68d2fed654b11, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
       value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7885821233525938092, guid: 785b49ed181f4d644af68d2fed654b11, type: 3}
       propertyPath: InitialModule.startSpeed.minScalar
-      value: 140
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 7885821233525938092, guid: 785b49ed181f4d644af68d2fed654b11, type: 3}
       propertyPath: InitialModule.startLifetime.minScalar

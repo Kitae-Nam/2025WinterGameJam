@@ -217,8 +217,8 @@ RectTransform:
   - {fileID: 424462574}
   - {fileID: 1575707008}
   - {fileID: 1708948670}
-  - {fileID: 3503752844631718608}
   - {fileID: 236641241341506030}
+  - {fileID: 3503752844631718608}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -7890,7 +7890,7 @@ AudioSource:
   m_GameObject: {fileID: 2602372835028220512}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -6970969813946195722, guid: 11226398966e96946af7a9f1f85faeb4, type: 2}
+  OutputAudioMixerGroup: {fileID: 2051974394930030003, guid: 11226398966e96946af7a9f1f85faeb4, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1

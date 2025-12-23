@@ -12,6 +12,8 @@ public class camera : MonoBehaviour
     private CinemachineCamera _current;
     public Transform LeftLimitMark;
     public Transform RightLimitMark;
+    public Transform UpLimitMark;
+    public Transform DownLimitMark;
     public GameObject ColdVFX;
     public GameObject SnowSlide;
     public SpriteRenderer sr;
@@ -61,6 +63,26 @@ public class camera : MonoBehaviour
                 return;
             }
             _current.gameObject.transform.position += Vector3.right * MoveSpeed*Time.deltaTime;
+        }
+        if(a==3)
+        {
+            Debug.Log("Up");
+            if (_current.gameObject.transform.position.y > UpLimitMark.position.y)
+            {
+                Debug.Log("Reached Up Limit");
+                return;
+            }
+            _current.gameObject.transform.position += Vector3.up * MoveSpeed * Time.deltaTime;
+        }
+        if(a==4)
+        {
+            Debug.Log("Down");
+            if (_current.gameObject.transform.position.y < DownLimitMark.position.y)
+            {
+                Debug.Log("Reached Down Limit");
+                return;
+            }
+            _current.gameObject.transform.position += Vector3.down * MoveSpeed * Time.deltaTime;
         }
     }
     public void ColdSetting()

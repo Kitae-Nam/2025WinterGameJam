@@ -102,12 +102,14 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
     private void Update()
     {
+        /*
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             if (!isSimulating) StartSimulation();
             else StopSimulation();
             return;
         }
+        */
 
         if (isSimulating) return;
 

@@ -62,6 +62,10 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     [SerializeField] GameObject finBtn;
     [SerializeField] GameObject exitBtn;
 
+    [Header("Sound")]
+    [SerializeField] AudioClip buildSound;
+    AudioSource soundManager;
+
     [Header("Group")]
     readonly Dictionary<int, NodeView> nodeDictionary = new();
     readonly List<EdgeView> edgeList = new();
@@ -101,6 +105,11 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
             nodeDictionary[n.Id] = n;
         }
+    }
+
+    private void Start()
+    {
+        soundManager = GameObject.Find("SoundManager").GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -311,6 +320,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
         moneyText.text = RemainingBudget;
         OnBudgetChanged?.Invoke(spent, Mathf.Max(0f, total - spent));
 
+        soundManager.PlayOneShot(buildSound);
         ActiveNodeId = targetId;
         #endregion
 

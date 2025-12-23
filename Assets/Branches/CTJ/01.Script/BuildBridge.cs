@@ -6,6 +6,9 @@ using UnityEngine.InputSystem;
 
 public class BuildBridge : MonoSingleton<BuildBridge>
 {
+    [Header("Cam")]
+    [SerializeField] Camera cam;
+
     [Header("Node State")]
     [SerializeField] int activeNodeId = -1;
     public int ActiveNodeId
@@ -39,7 +42,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     public event Action<float, float> OnBudgetChanged;
 
     [Header("Zone")]
-    [SerializeField] Collider2D buildZone;
+    [SerializeField] Collider2D[] buildZone;
 
     [Header("Prefabs")]
     [SerializeField] NodeView nodePrefab;
@@ -54,6 +57,10 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     [SerializeField] float gravityScale = 1f;
     [SerializeField] float jointBreakForce = 250f; // 인장 강도, 이거 이상 늘어나면 박살남 (아마? 맞나?)
     [SerializeField] bool isSimulating = false;
+
+    [Header("UI")]
+    [SerializeField] GameObject finBtn;
+    [SerializeField] GameObject exitBtn;
 
     [Header("Group")]
     readonly Dictionary<int, NodeView> nodeDictionary = new();
@@ -71,6 +78,8 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     protected override void Awake()
     {
         base.Awake();
+
+        exitBtn.SetActive(false);
 
         activeNodeId = -1;
         moneyText.text = RemainingBudget;
@@ -120,7 +129,7 @@ public class BuildBridge : MonoSingleton<BuildBridge>
                 }
             }
 
-            float pickRadius = 0.08f;
+            float pickRadius = 0.8f;
             Collider2D edgeHit = Physics2D.OverlapCircle(GetMousePos(), pickRadius, edgeLayer);
             if (edgeHit != null)
             {
@@ -204,12 +213,35 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
         Vector2 targetPos = targetNode != null ? (Vector2)targetNode.transform.position : mousePos;
 
-        if (buildZone != null && !buildZone.OverlapPoint(targetPos))
-            return;
+        if (buildZone != null)
+        {
+            bool count = false;
+            for (int i = 0; i < buildZone.Length; i++)
+            {
+                if (buildZone[i] != null && buildZone[i].OverlapPoint(targetPos))
+                {
+                    count = true;
+                }
+            }    
+
+            if (!count)
+            {
+                OnText("Outside Permitted Zone.");
+                return;
+            }
+        }
 
         float dist = Vector2.Distance(fromNode.transform.position, targetPos);
-        if (dist < minLineLength || dist > maxLineLength)
+        if (dist < minLineLength)
+        {
+            OnText("The Distance Is Too Short.");
             return;
+        }
+        else if (dist > maxLineLength)
+        {
+            OnText("The Distance Is Too Far.");
+            return;
+        }
 
         if (isLimitAngle)
         {
@@ -217,12 +249,18 @@ public class BuildBridge : MonoSingleton<BuildBridge>
             Vector2 baseDir = angleDir.TryGetValue(fromNode.Id, out var prevDir) ? prevDir : Vector2.right;
 
             if (Mathf.Abs(Vector2.SignedAngle(baseDir, newDir)) >= maxAngle)
+            {
+                OnText("The Angle Is Too Large.");
                 return;
+            }
         }
 
         float cost = dist * costPerUnit;
         if (spent + cost > total)
+        {
+            OnText("Budget Shortage.");
             return;
+        }
 
         bool createdNew = false;
         int targetId;
@@ -323,8 +361,22 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
         bool valid = true;
 
-        if (buildZone != null && !buildZone.OverlapPoint(targetPos))
-            valid = false;
+        if (buildZone != null)
+        {
+            bool count = false;
+            for (int i = 0; i < buildZone.Length; i++)
+            {
+                if (buildZone[i] != null && buildZone[i].OverlapPoint(targetPos))
+                {
+                    count = true;
+                }
+            }
+
+            if (!count)
+            {
+                valid = false;
+            }
+        }
 
         float dist = Vector2.Distance(fromNode.transform.position, targetPos);
         if (dist < minLineLength || dist > maxLineLength)
@@ -345,11 +397,14 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
         if (disablePreviewWhenInvalid && !valid)
         {
-            previewLine.enabled = false;
+            previewLine.startColor = Color.red;
+            previewLine.endColor = Color.red;
             return;
         }
 
         previewLine.enabled = true;
+        previewLine.startColor = Color.white;
+        previewLine.endColor = Color.white;
         previewLine.SetPosition(0, fromNode.transform.position);
         previewLine.SetPosition(1, targetPos);
     }
@@ -414,14 +469,24 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
     Vector2 GetMousePos()
     {
-        Vector3 p = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        return new Vector2(p.x, p.y);
+        if (!cam) cam = Camera.main;
+
+        Vector2 screen = Mouse.current.position.ReadValue();
+        float z = -cam.transform.position.z;
+
+        Vector3 world = cam.ScreenToWorldPoint(new Vector3(screen.x, screen.y, z));
+        return new Vector2(world.x, world.y);
     }
 
     // 내가 썼지만 이게 왜 작동하는지는 모르겠다(사실 알지도 모른다, 엄청난 버그 픽스!!)
     // 근데 일단 되잖아 한잔해~
     public void StartSimulation()
     {
+        if (isSimulating) return;
+
+        finBtn.SetActive(false);
+        exitBtn.SetActive(true);
+
         savedPos.Clear();
         savedRot.Clear();
 
@@ -521,6 +586,11 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
     public void StopSimulation()
     {
+        if (!isSimulating) return;
+
+        finBtn.SetActive(true);
+        exitBtn.SetActive(false);
+
         isSimulating = false;
         ActiveNodeId = -1;
 
@@ -551,5 +621,11 @@ public class BuildBridge : MonoSingleton<BuildBridge>
         }
 
         if (previewLine) previewLine.enabled = true;
+    }
+
+    private void OnText(string message)
+    {
+        StopAllCoroutines();
+        StartCoroutine(BuildEventManager.Instance.MessageOn(message));
     }
 }

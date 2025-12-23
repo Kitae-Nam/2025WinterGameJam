@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxSpeed: 30
   minSpeed: 3
-  moveSpeed: 3
+  moveSpeed: 5
   acceleration: 0.2
   deceleration: 0.1
   rotationAcceleration: 450
   rotationDeceleration: 300
   maxRotationSpeed: 200
-  jumpForce: 404
-  gravityForce: 40
+  jumpForce: 403.5
+  gravityForce: 64.5

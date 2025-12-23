@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3740017998052196976
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6046118523296495110}
+  - component: {fileID: 7540775693732205420}
+  m_Layer: 0
+  m_Name: BuildBridge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6046118523296495110
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3740017998052196976}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7540775693732205420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3740017998052196976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce933b41eca241549940ef0a176cbaab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeNodeId: -1
+  costPerUnit: 2
+  minLineLength: 0.15
+  maxLineLength: 5
+  nodeLayer:
+    serializedVersion: 2
+    m_Bits: 4096
+  edgeLayer:
+    serializedVersion: 2
+    m_Bits: 8192
+  isLimitAngle: 0
+  maxAngle: 70
+  total: 200
+  spent: 0
+  moneyText: {fileID: 0}
+  buildZone: {fileID: 0}
+  nodePrefab: {fileID: 2841208865541681095, guid: 4b5b858058e534743814499af2b4a2f4, type: 3}
+  edgePrefab: {fileID: 2243453196295497809, guid: 01203cdd05af3844ca8374ad4459b149, type: 3}
+  previewLine: {fileID: 0}
+  disablePreviewWhenInvalid: 1
+  nodeMass: 1
+  gravityScale: 1
+  jointBreakForce: 250
+  isSimulating: 0

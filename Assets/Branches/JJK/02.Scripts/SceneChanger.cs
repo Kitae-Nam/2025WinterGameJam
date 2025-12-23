@@ -9,6 +9,17 @@ public class SceneChanger : MonoSingleton<SceneChanger>
     [SerializeField] private Image fadeImage;
     [SerializeField] private float fadeTime = 0.4f;
     
+    protected virtual void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        
+        DontDestroyOnLoad(gameObject);
+    }
+    
     public void ChangeScene(int index)
     {
         fadeImage.gameObject.SetActive(true);

@@ -7,10 +7,13 @@ public class SnowSlide : MonoBehaviour
 
     [Header("Target")]
     [SerializeField] private Transform playerTransform;
+    [SerializeField] private Transform MyTransform;
+
 
     private float alpha = 0.5f;
-
+    [Header("이 거리보다 가까워진다면 알파 1")]
     public float minDistance = 2f;   // 이 거리 이하면 alpha = 1
+    [Header("이 거리보다 멀어진다면 알파 0")]
     public float maxDistance = 10f;  // 이 거리 이상이면 alpha = 0
     public SpriteRenderer SnowSlideSR;
 
@@ -34,10 +37,9 @@ public class SnowSlide : MonoBehaviour
         if (playerTransform == null) return;
 
         float distance = Vector2.Distance(
-            transform.position,
+            MyTransform.position,
             playerTransform.position
         );
-        Debug.Log(distance);
 
 
         // 가까울수록 1, 멀수록 0

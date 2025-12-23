@@ -51,7 +51,8 @@ public class SceneChanger : MonoSingleton<SceneChanger>
     {
         fadeImage
             .DOFade(0f, fadeTime + 0.2f)
-            .SetDelay(0.2f)
+            .SetEase(Ease.InQuad)
+            .SetDelay(0.3f)
             .SetUpdate(true)
             .OnComplete(() =>
             {

@@ -100,11 +100,13 @@ public class OptionUI : MonoBehaviour
 
     public void OnClickAgain()
     {
+        SoundManager.Instance.PlaySound(Sound.UIClick);
         SceneManager.LoadScene(1);
     }
 
     public void OnClickHome()
     {
+        SoundManager.Instance.PlaySound(Sound.UIClick);
         SceneManager.LoadScene(0);
     }
 }

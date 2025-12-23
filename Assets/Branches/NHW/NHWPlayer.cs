@@ -17,7 +17,7 @@ public class NHWPlayer : MonoBehaviour
         AAA += () => _cameraController.SwitchTo(1);
         AAA += SettingP;
     }
-  public void SettingP()
+    public void SettingP()
     {
         GameObject.transform.position = Transform.position;
         GameObject.SetActive(true);
@@ -34,27 +34,32 @@ public class NHWPlayer : MonoBehaviour
             Debug.Log("Switching to camera 2");
             AAA?.Invoke();
         }
-            if (Keyboard.current.aKey.isPressed)
-            {
-                Debug.Log("A");
-                _cameraController.MoveCamera(1);
-            }
-            else if (Keyboard.current.dKey.isPressed)
-            {
-                Debug.Log("D");
-                _cameraController.MoveCamera(2);
+        if (Keyboard.current.aKey.isPressed)
+        {
+            Debug.Log("A");
+            _cameraController.MoveCamera(1);
+        }
+        else if (Keyboard.current.dKey.isPressed)
+        {
+            Debug.Log("D");
+            _cameraController.MoveCamera(2);
 
-            }
-            else if (Keyboard.current.wKey.isPressed)
-            {
-                Debug.Log("W");
-                _cameraController.MoveCamera(3);
-            }
-            else if (Keyboard.current.sKey.isPressed)
-            {
-                Debug.Log("S");
-                _cameraController.MoveCamera(4);
-            }
+        }
+        else if (Keyboard.current.wKey.isPressed)
+        {
+            Debug.Log("W");
+            _cameraController.MoveCamera(3);
+        }
+        else if (Keyboard.current.sKey.isPressed)
+        {
+            Debug.Log("S");
+            _cameraController.MoveCamera(4);
         }
     }
+
+    public void StartHandler()
+    {
+        AAA?.Invoke();
+    }
+}
 

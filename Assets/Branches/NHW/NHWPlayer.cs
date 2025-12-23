@@ -6,11 +6,21 @@ public class NHWPlayer : MonoBehaviour
 {
     public camera _cameraController;
     public event Action AAA;
+    public Transform Transform;
+    public GameObject GameObject;
+    Rigidbody2D rb;
     private void Start()
     {
         _cameraController.SwitchTo(0);
+        rb = GetComponent<Rigidbody2D>();
 
         AAA += () => _cameraController.SwitchTo(1);
+        AAA += SettingP;
+    }
+  public void SettingP()
+    {
+        GameObject.transform.position = Transform.position;
+        GameObject.SetActive(true);
     }
     private void Update()
     {

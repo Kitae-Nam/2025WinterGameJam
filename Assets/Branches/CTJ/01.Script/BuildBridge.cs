@@ -211,7 +211,12 @@ public class BuildBridge : MonoSingleton<BuildBridge>
         }
 
         float dist = Vector2.Distance(fromNode.transform.position, targetPos);
-        if (dist < minLineLength || dist > maxLineLength)
+        if (dist < minLineLength)
+        {
+            OnText("The Distance Is Too Short.");
+            return;
+        }
+        else if (dist > maxLineLength)
         {
             OnText("The Distance Is Too Far.");
             return;

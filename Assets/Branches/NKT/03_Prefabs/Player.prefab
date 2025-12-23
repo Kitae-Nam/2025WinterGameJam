@@ -105,12 +105,13 @@ GameObject:
   m_Component:
   - component: {fileID: 1027974841007820676}
   - component: {fileID: 4035930149388421752}
+  - component: {fileID: 5235321712670078850}
   - component: {fileID: 4805849877833354173}
   - component: {fileID: 8123010594713610940}
   - component: {fileID: 6928411889997154109}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -147,6 +148,7 @@ MonoBehaviour:
   _playerSo: {fileID: 11400000, guid: a61351f3e753c43438f471dc29e19d02, type: 2}
   _isOnGround: 0
   _canJump: 0
+  _isJumping: 0
   _rayLength: 1.23
   _groundLayer:
     serializedVersion: 2
@@ -155,6 +157,33 @@ MonoBehaviour:
   _extraGroundGravity: 40
   _softStickRayLength: 0.4
   _particle: {fileID: 3540329992262262403}
+  OnPlayerDead:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4035930149388421752}
+        m_TargetAssemblyTypeName: PlayerMove, Assembly-CSharp
+        m_MethodName: Die
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &5235321712670078850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2598299740527742130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04c0bf808a2d18f4ab1e9315834adcd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!50 &4805849877833354173
 Rigidbody2D:
   serializedVersion: 5
@@ -290,13 +319,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4578329585697202954}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.29, y: -0.51, z: -0.52308965}
+  m_LocalRotation: {x: -0, y: -0, z: -0.19880185, w: 0.9800397}
+  m_LocalPosition: {x: -1.2900009, y: -0.5099983, z: 0}
   m_LocalScale: {x: 0.43432, y: 0.43432, z: 0.43432}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1027974841007820676}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -22.934}
 --- !u!198 &3540329992262262403
 ParticleSystem:
   m_ObjectHideFlags: 0

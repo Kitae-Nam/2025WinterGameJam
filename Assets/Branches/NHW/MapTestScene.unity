@@ -12121,6 +12121,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 546787313}
     - target: {fileID: 7540775693732205420, guid: 3a08f4dc3b075c44c8ed091c9c21e459, type: 3}
+      propertyPath: buildSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 211298bc84cbf2f4487aa21199334e31, type: 3}
+    - target: {fileID: 7540775693732205420, guid: 3a08f4dc3b075c44c8ed091c9c21e459, type: 3}
       propertyPath: costPerUnit
       value: 0.2
       objectReference: {fileID: 0}
@@ -12153,7 +12157,15 @@ PrefabInstance:
       value: 4096
       objectReference: {fileID: 0}
     - target: {fileID: 7540775693732205420, guid: 3a08f4dc3b075c44c8ed091c9c21e459, type: 3}
+      propertyPath: buildZone.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7540775693732205420, guid: 3a08f4dc3b075c44c8ed091c9c21e459, type: 3}
       propertyPath: 'buildZone.Array.data[0]'
+      value: 
+      objectReference: {fileID: 620743964}
+    - target: {fileID: 7540775693732205420, guid: 3a08f4dc3b075c44c8ed091c9c21e459, type: 3}
+      propertyPath: 'buildZone.Array.data[1]'
       value: 
       objectReference: {fileID: 620743964}
     m_RemovedComponents: []

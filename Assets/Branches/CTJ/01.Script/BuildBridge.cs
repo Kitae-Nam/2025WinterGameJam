@@ -58,6 +58,10 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     [SerializeField] float jointBreakForce = 250f; // 인장 강도, 이거 이상 늘어나면 박살남 (아마? 맞나?)
     [SerializeField] bool isSimulating = false;
 
+    [Header("UI")]
+    [SerializeField] GameObject finBtn;
+    [SerializeField] GameObject exitBtn;
+
     [Header("Group")]
     readonly Dictionary<int, NodeView> nodeDictionary = new();
     readonly List<EdgeView> edgeList = new();
@@ -74,6 +78,8 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     protected override void Awake()
     {
         base.Awake();
+
+        exitBtn.SetActive(false);
 
         activeNodeId = -1;
         moneyText.text = RemainingBudget;
@@ -167,18 +173,14 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Debug.Log("클릭 입력됨");
             HandleBuild(GetMousePos());
         }
     }
 
     private void HandleBuild(Vector2 mousePos)
     {
-        Debug.Log("핸들 빌드 진입됨");
-
         if (ActiveNodeId < 0)
         {
-            Debug.Log($"mousePos={mousePos}, nodeLayerMask={nodeLayer.value}");
             Collider2D hit = Physics2D.OverlapPoint(mousePos, nodeLayer);
             if (hit == null) return;
 
@@ -482,6 +484,9 @@ public class BuildBridge : MonoSingleton<BuildBridge>
     {
         if (isSimulating) return;
 
+        finBtn.SetActive(false);
+        exitBtn.SetActive(true);
+
         savedPos.Clear();
         savedRot.Clear();
 
@@ -581,6 +586,11 @@ public class BuildBridge : MonoSingleton<BuildBridge>
 
     public void StopSimulation()
     {
+        if (!isSimulating) return;
+
+        finBtn.SetActive(true);
+        exitBtn.SetActive(false);
+
         isSimulating = false;
         ActiveNodeId = -1;
 

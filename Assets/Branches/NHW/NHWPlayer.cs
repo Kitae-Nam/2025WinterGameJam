@@ -24,6 +24,7 @@ public class NHWPlayer : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
         GameObject.transform.rotation = Quaternion.Euler(0f, 0f, -40f);
+        GameObject.SetActive(true);
 
     }
     private void Update()

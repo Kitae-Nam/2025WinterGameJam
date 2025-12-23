@@ -12,11 +12,11 @@ public class StageClearUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI timeText;
 
-    private float targetY;
+    private float _targetY;
 
     private void Awake()
     {
-        targetY = window.anchoredPosition.y;
+        _targetY = window.anchoredPosition.y;
     }
 
     private void Update()
@@ -34,22 +34,21 @@ public class StageClearUI : MonoBehaviour
 
     private void PlayEnterAnimation()
     {
-        // 시작 위치 (위)
         window.anchoredPosition = new Vector2(
             window.anchoredPosition.x,
-            targetY + 900f
+            _targetY + 900f
         );
 
         Sequence seq = DOTween.Sequence();
         seq.SetUpdate(true);
 
         seq.Append(
-            window.DOAnchorPosY(targetY - 150f, 0.45f)
+            window.DOAnchorPosY(_targetY - 150f, 0.45f)
                 .SetEase(Ease.InCubic)
         );
 
         seq.Append(
-            window.DOAnchorPosY(targetY, 0.3f)
+            window.DOAnchorPosY(_targetY, 0.3f)
                 .SetEase(Ease.OutBack)
         );
 

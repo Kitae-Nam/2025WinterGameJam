@@ -108,7 +108,6 @@ public class OptionUI : MonoBehaviour
         SoundManager.Instance.PlaySound(Sound.UIClick);
         SceneChanger.Instance.ChangeScene(SceneManager.GetActiveScene().buildIndex + 1);
         Time.timeScale = 1;
-
     }
 
     public void OnClickHome()

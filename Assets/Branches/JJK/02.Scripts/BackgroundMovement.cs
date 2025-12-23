@@ -9,8 +9,13 @@ public class BackgroundMovement : MonoBehaviour
     private void FixedUpdate()
     {
         transform.position += transform.right * speed * Time.fixedDeltaTime;
-        
+
         if (transform.position.x > tpPoint)
-            transform.position = new Vector3(-tpPoint, transform.position.y, transform.position.z);
+        {
+            if (speed > 0)
+                transform.position = new Vector3(-tpPoint, transform.position.y, transform.position.z);
+            else
+                transform.position = new Vector3(tpPoint, transform.position.y, transform.position.z);
+        }
     }
 }

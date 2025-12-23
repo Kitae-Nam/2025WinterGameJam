@@ -27,6 +27,10 @@ public class NHWPlayer : MonoBehaviour
         GameObject.SetActive(true);
 
     }
+    public void Setting()
+    {
+        _cameraController.SwitchTo(0);
+    }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))

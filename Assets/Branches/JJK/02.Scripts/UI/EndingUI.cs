@@ -11,6 +11,7 @@ public class EndingUI : MonoBehaviour
     private void Awake()
     {
         _targetY = credit.anchoredPosition.y;
+        Show();
     }
 
     private void Update()
@@ -29,15 +30,17 @@ public class EndingUI : MonoBehaviour
     {
         credit.anchoredPosition = new Vector2(
             credit.anchoredPosition.x,
-            _targetY - 900f
+            _targetY - 1100f
         );
 
         Sequence seq = DOTween.Sequence();
         seq.SetUpdate(true);
         
         seq.Append(
-            credit.DOAnchorPosY(_targetY, 10f)
+            credit.DOAnchorPosY(_targetY + 1100, 20f)
                 .SetEase(Ease.Linear)
+                .OnComplete(() =>
+                    SceneChanger.Instance.ChangeScene(0))
         );
     }
 }

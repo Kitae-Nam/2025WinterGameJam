@@ -175,6 +175,8 @@ public class PlayerMove : MonoBehaviour
         _totalRotation = 0f;
         _rigid.angularVelocity = 0f;
 
+        GroundPull();
+
         float angle = transform.eulerAngles.z;
 
         if (angle > 180f)
